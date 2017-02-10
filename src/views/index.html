@@ -8,5 +8,34 @@
 </head>
 <body>
   <p>Hello World</p>
+  <div id="drop" style="height: 200px;width:200px;background:pink"></div>
+  <input id="magnet" type="text" name="" value="" onsubmit="dl(this.value)">
+  <script type="text/javascript">
+    var dragDrop = require('drag-drop')
+    var WebTorrent = require('webtorrent')
+
+    var client = new WebTorrent()
+
+    // When user drops files on the browser, create a new torrent and start seeding it!
+    dragDrop('#drop', function (files) {
+      client.seed(files, function (torrent) {
+        console.log('Client is seeding:', torrent)
+      })
+    })
+
+    function dl(magnetURI) {
+      client.add(magnetURI, function (torrent) {
+        // Got torrent metadata!
+        console.log('Client is downloading:', torrent.infoHash)
+
+        torrent.files.forEach(function (file) {
+          // Display the file by appending it to the DOM. Supports video, audio, images, and
+          // more. Specify a container element (CSS selector or reference to DOM node).
+          file.appendTo('body')
+        })
+      })
+
+    }
+  </script>
 </body>
 </html>
