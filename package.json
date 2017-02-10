@@ -1,0 +1,19 @@
+{
+  "name": "rekall",
+  "version": "1.0.0",
+  "description": "A webRTC phone.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webrtc",
+    "phone"
+  ],
+  "author": "RekkyRek",
+  "license": "MIT",
+  "devDependencies": {
+    "electron-auto-updater": "^1.0.0",
+    "electron-reload": "^1.1.0"
+  }
+}
