@@ -15,5 +15,8 @@
   "devDependencies": {
     "electron-auto-updater": "^1.0.0",
     "electron-reload": "^1.1.0"
+  },
+  "dependencies": {
+    "node-json-db": "^0.7.3"
   }
 }
