@@ -39,15 +39,21 @@ app.on('activate', () => {
   }
 })
 
+let win_dom
+
 exports.opendomainwindow = () => {
   // Create the browser window.
-  win = new BrowserWindow({width: 400, height: 400})
-  win.setMenu(null);
+  win_dom = new BrowserWindow({width: 400, height: 400})
+  //win.setMenu(null);
 
   // and load the index.html of the app.
-  win.loadURL(url.format({
+  win_dom.loadURL(url.format({
     pathname: path.join(__dirname, '/views/domconnect.html'),
     protocol: 'file:',
     slashes: true
   }))
+}
+
+exports.closedomainwindow = () => {
+  win_dom.close();
 }

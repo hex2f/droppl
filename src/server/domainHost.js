@@ -23,12 +23,28 @@ if(process.argv[2] == null) {
   var io = require('socket.io')();
   io.on('connection', function(socket){
     socket.on('register', function (data) {
+      console.log('Register from '+socket.id);
       if(password != '') {
         if(data == password) {
           socket.emit('regreturn', token);
+          console.log('Granted access for '+socket.id);
+        } else {
+          socket.emit('regfail');
+          console.log('Denied access for '+socket.id);
         }
       } else {
         socket.emit('regreturn', token);
+        console.log('Granted access for '+socket.id);
+      }
+    });
+
+    socket.on('uploadmagnet', function (data) {
+      if(password != '') {
+        if(data[1] == password) {
+          socket.emit
+        } else {
+          socket.disconnect();
+        }
       }
     });
   });
