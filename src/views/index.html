@@ -4,9 +4,100 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Test</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
+  <link rel="stylesheet" href="../style/upload.min.css">
+  <title>Upload</title>
 </head>
 <body>
-  <p>Hello World</p>
+  <div id="message">
+    <span>Drag & Drop to Upload</span>
+  </div>
+  <div id="drop" style="">
+    <div id="droploadbg"></div>
+
+    <p id="dropstatus">+</p>
+  </div>
+  <div id="uploaddone">
+    <div id="messagebox">
+      <h1>Now Seeding</h1>
+      <a href="#" id="udonemagnet">magnet://link.here</a><br><br>
+      <button type="button" name="udonecopy">Copy to clipboard</button><br>
+      <button type="button" name="udonedomain">Share to domain</button><br>
+      <button type="button" name="udonenone" id="udonenone" onclick="closeUploadDone()">Close</button>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var anime = require('animejs')
+    var dragDrop = require('drag-drop')
+    var WebTorrent = require('webtorrent')
+
+    var client = new WebTorrent()
+
+    document.addEventListener('dragover', event => event.preventDefault())
+    document.addEventListener('drop', event => event.preventDefault())
+
+    function shareToDomain () {
+
+    }
+
+    function copyToClipboard () {
+
+    }
+
+    function closeUploadDone () {
+      anime({
+        targets: '#uploaddone',
+        opacity: [1,0],
+        scale: [1,1.2],
+        duration: 2000,
+      });
+      setTimeout(()=>{uploaddone.style.display = 'none'},2000);
+    }
+
+    // When user drops files on the browser, create a new torrent and start seeding it!
+    dragDrop('#drop', function (files) {
+      anime({
+        targets: '#message',
+        top: [window.innerHeight / 2 - 155, window.innerHeight / 2],
+        opacity: [1, 0],
+        duration: 2000,
+      });
+      dropstatus.innerHTML = "↻"
+      var dropload = anime({
+        targets: '#dropstatus',
+        rotate: '720deg',
+        duration: 2000,
+        easing: 'linear',
+        loop: true
+      });
+      var droploadbg = anime({
+        targets: '#droploadbg',
+        top: '0px',
+        duration: 7000,
+        easing: 'linear',
+      });
+      client.seed(files, function (torrent) {
+        dropload.pause()
+        dropload.seek(0)
+        //dropload = {};
+        dropload.pause()
+        droploadbg.seek(0)
+        //droploadbg = {};
+        dropstatus.innerHTML = "+"
+        uploaddone.style.display = "flex";
+        anime({
+          targets: '#uploaddone',
+          opacity: [0,1],
+          scale: [1.2,1],
+          delay: 500,
+          duration: 2000,
+        });
+        udonemagnet.innerHTML = torrent.infoHash;
+        udonemagnet.href = torrent.magnetURI;
+        console.log('Client is seeding:', torrent);
+      })
+    })
+  </script>
 </body>
 </html>

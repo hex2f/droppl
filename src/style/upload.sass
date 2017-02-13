@@ -1,0 +1,88 @@
+body
+  background: #363742
+  display: flex
+  justify-content: center
+  align-items: center
+  height: 100vh
+  margin: 0
+  font-family: 'Roboto', sans-serif
+#uploaddone
+  display: none
+  opacity: 0
+  height: 100vh
+  width: 100vw
+  position: fixed
+  top: 0
+  left: 0
+  background: rgba(0,0,10, 0.5)
+  z-index: 5000
+  align-items: center
+  justify-content: center
+  #messagebox
+    padding-bottom: 30px
+    width: 450px
+    background: #fff
+    border-radius: 10px
+    text-align: center
+    h1
+      margin-bottom: 10px
+      font-weight: 300 !important
+    #udonenone
+      background: #828c9a
+      height: 32px
+      &:hover
+        background: #5a6069
+button
+  width: 200px
+  height: 50px
+  border-radius: 5px
+  color: #e8e8e8
+  margin: 10px
+  border: none
+  background: #1f69ce
+  transition: background 0.2s
+  cursor: pointer
+  &:focus
+    outline: none
+  &:hover
+    background: #225fb1
+
+#drop
+  height: 200px
+  width: 200px
+  background: #282733
+  color: #363742
+  border-radius: 100%
+  position: relative
+  overflow: hidden
+  z-index: 500
+  #droploadbg
+    position: absolute
+    top: 200px
+    left: 0px
+    background: #fff
+    height: 200px
+    width: 200px
+    z-index: 100
+  p
+    position: absolute
+    margin: 0
+    line-height: 200px
+    text-align: center
+    width: 200px
+    font-size: 40px
+    font-weight: 800
+    z-index: 10000
+#message
+  width: 200px
+  height: 50px
+  background: #1f69ce
+  overflow: visible
+  position: absolute
+  top: calc(50% - 155px)
+  border-radius: 100px
+  text-align: center
+  z-index: 100
+  span
+    color: #e8e8e8
+    line-height: 50px
