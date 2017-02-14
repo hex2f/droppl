@@ -14,7 +14,7 @@ if(process.argv[2] == null) {
   }
 
   var password;
-  var token = gentoken(128);
+  var token = 'DEGUB_TOKEN';
 
   if(process.argv[3] != null) {
     password = process.argv[3];
@@ -39,20 +39,25 @@ if(process.argv[2] == null) {
     });
 
     socket.on('uploadmagnet', function (data) {
-      if(token != '') {
-        if(data[0] == token) {
-          var data = db.getData("/");
-          var id = gentoken(5)
-          db.push(`/${socket.id}/${data[1]}/${id}`, data[1]);
-          db.save();
-          console.log(`New magnet link /${socket.id}/${data[1]}/${id}`);
-          //socket.emit('magsuccess');
-
-        } else {
-          socket.disconnect();
-          console.log('Auth Denied')
-        }
+      if(data['token'] == token) {
+        var id = gentoken(10);
+        db.push(`/${data['id'] + '___' + id}/name`, data['name']);
+        db.push(`/${data['id'] + '___' + id}/link`, data['magnet']);
+        setTimeout(()=>{db.save()}, 1000);
+        console.log(`New magnet link /${socket.id}/${data['id']}/${id}`);
+      } else {
+        console.log('Auth Denied')
       }
+    });
+
+    socket.on('getallmagnets', function (data) {
+      var dbdata = db.getData("/");
+      console.log('Get all magnets from '+socket.id);
+      var tmparr = [,];
+      for (var socketid in dbdata) {
+        tmparr.push(dbdata[socketid]['name'], dbdata[socketid]['magnet'])
+      }
+      socket.emit('allmagnets', tmparr);
     });
   });
   io.listen(process.argv[2]);

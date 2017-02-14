@@ -1,14 +1,13 @@
 {
-  "name": "rekall",
+  "name": "Droppl",
   "version": "1.0.0",
-  "description": "A webRTC phone.",
+  "description": "The Torrent client that cares ❤",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "webrtc",
-    "phone"
+    "torrent"
   ],
   "author": "RekkyRek",
   "license": "MIT",
