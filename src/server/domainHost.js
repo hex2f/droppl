@@ -39,11 +39,18 @@ if(process.argv[2] == null) {
     });
 
     socket.on('uploadmagnet', function (data) {
-      if(password != '') {
-        if(data[1] == password) {
-          socket.emit
+      if(token != '') {
+        if(data[0] == token) {
+          var data = db.getData("/");
+          var id = gentoken(5)
+          db.push(`/${socket.id}/${data[1]}/${id}`, data[1]);
+          db.save();
+          console.log(`New magnet link /${socket.id}/${data[1]}/${id}`);
+          //socket.emit('magsuccess');
+
         } else {
           socket.disconnect();
+          console.log('Auth Denied')
         }
       }
     });

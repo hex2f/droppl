@@ -44,10 +44,23 @@
     function shareToDomain () {
       if(localStorage.getItem('domainToken') != null) {
         var socket = require('socket.io-client')(localStorage.getItem('domainHost'));
-        socket.emit('uploadmagnet', [localStorage.getItem('domainToken'), udonemagnet.href]);
-        domainDone.style.display = "block";
-        udonedomain.style.display = "none";
-        domainDone.classList.add('checkmark');
+        anime({
+          targets: '#udonedomain',
+          opacity: [1,0],
+          scale: [1,0.6],
+          duration: 1000,
+        });
+        udonedomain.disabled = "true";
+        socket.on('connect', function(){
+          setTimeout(()=>{socket.emit('uploadmagnet', [localStorage.getItem('domainToken'), udonemagnet.href]);},1000);
+          setTimeout(()=>{
+            domainDone.style.display = "block";
+            udonedomain.style.display = "none";
+            domainDone.classList.add('checkmark');
+          }, 700);
+
+        });
+
       } else {
         main.opendomainwindow();
       }
@@ -64,7 +77,14 @@
         scale: [1,1.2],
         duration: 2000,
       });
-      setTimeout(()=>{uploaddone.style.display = 'none'},2000);
+      setTimeout(()=>{
+        uploaddone.style.display = 'none'
+        domainDone.style.display = "none";
+        udonedomain.style.display = "block";
+        domainDone.classList.remove('checkmark');
+        udonedomain.style.opacity = 1;
+        udonedomain.style.transform = "scale(1)";
+      },2000);
     }
 
     // When user drops files on the browser, create a new torrent and start seeding it!
