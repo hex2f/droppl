@@ -55,8 +55,9 @@ if(process.argv[2] == null) {
       console.log('Get all magnets from '+socket.id);
       var tmparr = [,];
       for (var socketid in dbdata) {
-        tmparr.push(dbdata[socketid]['name'], dbdata[socketid]['magnet'])
+        tmparr.push({ name: dbdata[socketid]['name'], magnet: dbdata[socketid]['link']})
       }
+      tmparr.shift();
       socket.emit('allmagnets', tmparr);
     });
   });

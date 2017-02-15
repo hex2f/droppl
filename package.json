@@ -16,6 +16,8 @@
     "electron-reload": "^1.1.0"
   },
   "dependencies": {
-    "node-json-db": "^0.7.3"
+    "node-json-db": "^0.7.3",
+    "vue": "^2.1.10",
+    "vue-electron": "^1.0.6"
   }
 }
