@@ -4,19 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
+  <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="../style/main.min.css">
   <title>Droppl</title>
 </head>
 <body>
   <div id="header">
-
+    <i class="fa fa-bars fa-fw" aria-hidden="true" onclick="openMenu()"></i>
+    <div class="flexfill"></div>
+  </div>
+  <div id="menu_bar">
+      <div class="menu_item flexfill">
+        <i class="fa fa-upload fa-fw" aria-hidden="true"></i>
+        <p>Upload</p>
+      </div>
+      <div class="menu_item flexfill">
+        <i class="fa fa-download fa-fw" aria-hidden="true"></i>
+        <p>Download</p>
+      </div>
+      <div class="menu_item flexfill">
+        <i class="fa fa-cloud fa-fw" aria-hidden="true"></i>
+        <p>Domain</p>
+      </div>
+      <div class="menu_item flexfill">
+        <i class="fa fa-cog fa-fw" aria-hidden="true"></i>
+        <p>Settings</p>
+      </div>
   </div>
   <div id="content">
     <div class="card" id="notJoinedCard" style="display: none">
       <h1>Looks like you haven't joined a domain yet.</h1>
       <h2>Do you want to join one?</h2>
       <button onclick="domainConnect()">OF COURSE!</button><br>
-      <button class="no">No thank you.</button>
+      <button class="no" onclick="domainNo()">No thank you.</button>
     </div>
   </div>
   <script src="../scripts/mainApp.js" charset="utf-8"></script>

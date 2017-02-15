@@ -12,8 +12,42 @@ body
   width: 100vw
   height: 56px
   background: #1f69ce
+  display: flex
+  align-items: center
+  justify-content: center
+  i
+    font-size: 32px
+    margin-left: 10px
 #content
   flex: 1
+.flexfill
+  flex: 1
+#menu_bar
+  width: 100vw
+  height: 0px
+  background: #fff
+  flex-direction: column
+  display: flex
+  overflow: hidden
+
+.menu_item
+  width: 100%
+  background: #fff
+  border-bottom: 1px #aaa solid
+  display: flex
+  flex-direction: row
+  align-items: center
+  transition: background 0.2s
+  &:hover
+    background: #eee
+  i
+    margin-left: 20px
+    margin-right: 20px
+    color: #333
+  p
+    text-align: left
+    line-height: 100%
+    color: #333
 .card
   margin-top: 20px
   border-radius: 5px
