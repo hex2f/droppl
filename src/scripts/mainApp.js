@@ -3,7 +3,7 @@ var main = remote.require('./src/index.js');
 var anime = require('animejs');
 
 var torrentApp = new Vue({
-  el: '#content',
+  el: '#torrents',
   data: {
     torrents: []
   }
@@ -12,7 +12,7 @@ var torrentApp = new Vue({
 var socket;
 
 if(localStorage.getItem('domainHost') == null) {
-  notJoinedCard.style.display = "block"
+  //notJoinedCard.style.display = "block"
 } else {
   socket = require('socket.io-client')(localStorage.getItem('domainHost'));
   socket.on('connect', () => {

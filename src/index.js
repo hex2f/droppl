@@ -1,6 +1,8 @@
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, dialog} = require('electron')
 const path = require('path')
 const url = require('url')
+var WebTorrent = require('webtorrent')
+var client = new WebTorrent()
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -12,7 +14,7 @@ require('electron-reload')(__dirname);
 
 function createWindow () {
   // Create the browser window.
-  win_upload = new BrowserWindow({width: 600, height: 800,icon: __dirname + '/img/dropplLogo.png'})
+  win_upload = new BrowserWindow({width: 1200, height: 800,icon: __dirname + '/img/dropplLogo.png'})
   //win_upload.setMenu(null);
   // and load the index.html of the app.
   win_upload.loadURL(url.format({
@@ -66,8 +68,8 @@ exports.closedomainwindow = () => {
 
 exports.openuploadwindow = () => {
   // Create the browser window.
-  win_upload = new BrowserWindow({width: 400, height: 400})
-  win_upload.setMenu(null);
+  win_upload = new BrowserWindow({width: 800, height: 600})
+  //win_upload.setMenu(null);
 
   // and load the index.html of the app.
   win_upload.loadURL(url.format({
@@ -77,8 +79,24 @@ exports.openuploadwindow = () => {
   }))
 
   // Emitted when the window is closed.
-  win_upload.on('closed', () => {
+  /*win_upload.on('closed', () => {
     win_upload = null
+  })*/
+
+  win_upload.on('close', (e) => {
+    e.preventDefault();
+    dialog.showMessageBox({
+      type: "question",
+      message: "The server is caching your torrent. If you close this window before it is done, no one will be able to download your file :(   Are you sure you want to cancel the upload?",
+      buttons: ["Wait until done", "Cancel Upload"]
+    }, (resp) => {
+      if(resp == 1) {
+        win_upload.hide();
+        win_upload = null
+      } else {
+
+      }
+    });
   })
 }
 

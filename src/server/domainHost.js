@@ -1,8 +1,10 @@
-if(process.argv[2] == null) {
-  console.log('Usage: node domainHost.js <*PORT> <PASSWORD>');
+if(process.argv[3] == null) {
+  console.log('Usage: node domainHost.js <PORT> <PASSWORD> <CACHE PATH>');
 } else {
   var JsonDB = require('node-json-db');
   var db = new JsonDB("torrents", true, false);
+  var WebTorrent = require('webtorrent')
+  var client = new WebTorrent()
 
   function gentoken(len) {
     var pos = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -14,10 +16,15 @@ if(process.argv[2] == null) {
   }
 
   var password;
+  var cpath = './cache/';
   var token = 'DEGUB_TOKEN';
 
   if(process.argv[3] != null) {
     password = process.argv[3];
+  }
+
+  if(process.argv[4] != null) {
+    cpath = process.argv[4];
   }
 
   var io = require('socket.io')();
@@ -43,6 +50,12 @@ if(process.argv[2] == null) {
         var id = gentoken(10);
         db.push(`/${data['id'] + '___' + id}/name`, data['name']);
         db.push(`/${data['id'] + '___' + id}/link`, data['magnet']);
+        client.add(data['magnet'], function (torrent) {
+          console.log('Server is caching:', torrent.infoHash)
+          torrent.files.forEach(function (file) {
+            socket.emit('serverchached', true)
+          })
+        })
         setTimeout(()=>{db.save()}, 1000);
         console.log(`New magnet link /${socket.id}/${data['id']}/${id}`);
       } else {

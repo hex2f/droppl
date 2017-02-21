@@ -6,97 +6,42 @@ body
   height: 100vh
   margin: 0
   font-family: 'Roboto', sans-serif
-  flex-direction: column
+  flex-direction: row
   color: white !important
   overflow: hidden
-#header
-  width: 100vw
-  height: 56px
-  background: #1f69ce
+#sidebar
+  background: #282733
+  width: 300px
+  height: 100vh
+#torrents
+  flex: 1
   display: flex
-  align-items: center
+  width: calc(100vw - 300px)
   justify-content: center
-  i
-    font-size: 32px
-    margin-left: 10px
-#content
-  flex: 1
+  height: 100vh
   overflow-y: scroll
-  overflow-x: hidden
-  width: 100vw
-.flexfill
-  flex: 1
-#menu_bar
-  width: 100vw
-  height: 0px
-  background: #fff
-  flex-direction: column
-  display: flex
-  overflow: hidden
-
-.menu_item
-  width: 100%
-  //background: #fff
-  //border-bottom: 1px #aaa solid
-  display: flex
-  flex-direction: row
-  align-items: center
-  transition: background 0.2s
-  &:hover
-    background: #eee
-  i
-    margin-left: 20px
-    margin-right: 20px
-    color: #333
-  p
-    text-align: left
-    line-height: 100%
-    color: #333
-.card
-  margin-top: 20px
-  border-radius: 5px
-  box-shadow: 0px 1px 5px rgba(0,0,0,0.4)
-  width: 90vw
-  box-sizing: border-box
-  padding: 10px
-  background: #fff
-  color: black
-  text-align: center
-  margin-left: calc(5vw - 17px / 2)
-  h1
-    font-weight: 300 !important
-    font-size: 2em
+  flex-wrap: wrap
+  .torrent
+    height: 200px
+    width: 200px
+    background: #1f69ce
+    display: flex
+    justify-content: center
+    align-items: center
+    flex-direction: column
     margin: 10px
-  h2
-    font-weight: 300 !important
-    font-size: 1.25em
-    margin: 10px
-.torrent
-  display: flex
-  flex-direction: row
-  align-items: center
-  h1
-    flex: 1
-    text-align: left
-  i
-    font-size: 42px
-    -webkit-text-stroke: 2px white
-button
-  width: 200px
-  height: 50px
-  border-radius: 5px
-  color: #e8e8e8
-  margin: 10px
-  border: none
-  background: #1f69ce
-  transition: background 0.2s
-  cursor: pointer
-  &:focus
-    outline: none
-  &:hover
-    background: #225fb1
-.no
-  background: #828c9a
-  height: 32px
-  &:hover
-    background: #5a6069
+    position: relative
+    h3
+      font-weight: 300
+      font-size: 24px
+      margin: 0
+    h4
+      font-weight: 300
+      font-size: 18px
+      margin: 0
+    div
+      position: absolute
+      bottom: 0px
+      background: #52a94d
+      width: 200px
+      text-align: center
