@@ -17,6 +17,7 @@
     "electron-reload": "^1.1.0"
   },
   "dependencies": {
+    "colorcolor": "^1.1.1",
     "jQuery": "^1.7.4",
     "node-json-db": "^0.7.3",
     "play-sound": "^1.1.1",

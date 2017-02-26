@@ -67,6 +67,7 @@ exports.addTorrent = (magnet) => {
       win_main.webContents.send('torrentAdded' , torrent);
       torrent.on('done', function () {
         win_main.webContents.send('torrentDone' , torrent);
+        win_main.webContents.send('playaudio' , {source: __dirname + '/audio/success.wav'});
       })
     });
   } else {
