@@ -6,21 +6,25 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
   <link rel="stylesheet" href="../style/main.min.css">
+  <script src="../scripts/us.js" charset="utf-8"></script>
   <script src="../vue.min.js" charset="utf-8"></script>
   <title>Droppl</title>
 </head>
 <body>
-  <div id="sidebar"></div>
+  <div id="topbar"></div>
   <div id="torrents">
-    <div class="torrent" v-for="torrent in torrents">
-      <h3>Awesome.txt</h3>
-      <h4>372mb</h4>
-      <div><span>100%</span></div>
+    <div class="torrent" v-for="torrent in torrents" v-bind:style="{background: 'linear-gradient(to bottom right, hsl(' + torrent.color + ', 80%, 48%), hsl(' + torrent.color + ' , 47%, 41%))'}">
+      <h3>{{torrent.filename}}</h3>
+      <h4>{{torrent.filesize}} mb</h4>
+      <h4>{{torrent.speed}} mb/s</h4>
+      <h4>{{torrent.peers}} peers</h4>
+      <div v-bind:style="{width: torrent.progress}"><p>{{torrent.progress}}</p></div>
     </div>
-    <div class="torrent addTorrent">
-      <h1>+</h1>
+    <div class="torrent addTorrent" id="drop" ondrop="(d)=>{console.log(d)}">
+      <p>Paste a magnet link here.</p>
     </div>
   </div>
+  <audio src="../audio/success_ohah_2.wav" style="display: hidden" id="soundPlayer"></audio>
   <script src="../scripts/mainApp.js" charset="utf-8"></script>
 </body>
 </html>

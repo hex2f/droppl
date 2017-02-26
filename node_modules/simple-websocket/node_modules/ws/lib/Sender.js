@@ -29,8 +29,8 @@ class Sender {
     this.firstFragment = true;
     this.compress = false;
 
-    this.processing = false;
     this.bufferedBytes = 0;
+    this.deflating = false;
     this.queue = [];
 
     this.onerror = null;
@@ -55,7 +55,7 @@ class Sender {
     buf.writeUInt16BE(code || 1000, 0, true);
     if (buf.length > 2) buf.write(data, 2);
 
-    if (this.perMessageDeflate) {
+    if (this.deflating) {
       this.enqueue([this.doClose, buf, mask, cb]);
     } else {
       this.doClose(buf, mask, cb);
@@ -78,8 +78,6 @@ class Sender {
       fin: true,
       mask
     }, cb);
-
-    if (this.perMessageDeflate) this.continue();
   }
 
   /**
@@ -103,7 +101,7 @@ class Sender {
       }
     }
 
-    if (this.perMessageDeflate) {
+    if (this.deflating) {
       this.enqueue([this.doPing, data, mask, readOnly]);
     } else {
       this.doPing(data, mask, readOnly);
@@ -126,8 +124,6 @@ class Sender {
       readOnly,
       mask
     });
-
-    if (this.perMessageDeflate) this.continue();
   }
 
   /**
@@ -151,7 +147,7 @@ class Sender {
       }
     }
 
-    if (this.perMessageDeflate) {
+    if (this.deflating) {
       this.enqueue([this.doPong, data, mask, readOnly]);
     } else {
       this.doPong(data, mask, readOnly);
@@ -174,8 +170,6 @@ class Sender {
       readOnly,
       mask
     });
-
-    if (this.perMessageDeflate) this.continue();
   }
 
   /**
@@ -220,14 +214,20 @@ class Sender {
     if (options.fin) this.firstFragment = true;
 
     if (this.perMessageDeflate) {
-      this.enqueue([this.dispatch, data, {
+      const opts = {
         compress: this.compress,
         mask: options.mask,
         fin: options.fin,
         readOnly,
         opcode,
         rsv1
-      }, cb]);
+      };
+
+      if (this.deflating) {
+        this.enqueue([this.dispatch, data, opts, cb]);
+      } else {
+        this.dispatch(data, opts, cb);
+      }
     } else {
       this.frameAndSend(data, {
         mask: options.mask,
@@ -256,10 +256,10 @@ class Sender {
   dispatch (data, options, cb) {
     if (!options.compress) {
       this.frameAndSend(data, options, cb);
-      this.continue();
       return;
     }
 
+    this.deflating = true;
     this.perMessageDeflate.compress(data, options.fin, (err, buf) => {
       if (err) {
         if (cb) cb(err);
@@ -269,7 +269,8 @@ class Sender {
 
       options.readOnly = false;
       this.frameAndSend(buf, options, cb);
-      this.continue();
+      this.deflating = false;
+      this.dequeue();
     });
   }
 
@@ -349,32 +350,17 @@ class Sender {
   }
 
   /**
-   * Executes a queued send operation.
+   * Executes queued send operations.
    *
    * @private
    */
   dequeue () {
-    if (this.processing) return;
+    while (!this.deflating && this.queue.length) {
+      const params = this.queue.shift();
 
-    const params = this.queue.shift();
-    if (!params) return;
-
-    if (params[1]) this.bufferedBytes -= params[1].length;
-    this.processing = true;
-
-    params[0].apply(this, params.slice(1));
-  }
-
-  /**
-   * Signals the completion of a send operation.
-   *
-   * @private
-   */
-  continue () {
-    process.nextTick(() => {
-      this.processing = false;
-      this.dequeue();
-    });
+      if (params[1]) this.bufferedBytes -= params[1].length;
+      params[0].apply(this, params.slice(1));
+    }
   }
 
   /**
@@ -386,7 +372,6 @@ class Sender {
   enqueue (params) {
     if (params[1]) this.bufferedBytes += params[1].length;
     this.queue.push(params);
-    this.dequeue();
   }
 }
 

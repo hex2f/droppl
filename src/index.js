@@ -1,4 +1,6 @@
-const {app, BrowserWindow, dialog} = require('electron')
+console.time('init')
+
+const {app, BrowserWindow, dialog, Menu, Tray, ipcMain} = require('electron')
 const path = require('path')
 const url = require('url')
 var WebTorrent = require('webtorrent')
@@ -9,32 +11,48 @@ var client = new WebTorrent()
 let win_upload
 let win_main
 let win_dom
+let tray
 
 require('electron-reload')(__dirname);
 
 function createWindow () {
-  // Create the browser window.
-  win_upload = new BrowserWindow({width: 1200, height: 800,icon: __dirname + '/img/dropplLogo.png'})
-  //win_upload.setMenu(null);
-  // and load the index.html of the app.
-  win_upload.loadURL(url.format({
-    pathname: path.join(__dirname, '/views/main.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
+  win_main = new BrowserWindow({width: 1200, height: 800, icon: __dirname + '/img/dropplLogo.png', backgroundColor: '#363742'})
+  win_main.loadURL(path.join(__dirname, '/views/main.html'))
 
-  // Emitted when the window is closed.
-  win_upload.on('closed', () => {
-    win_upload = null
+  win_main.on('beforeunload', (event) => {
+    //event.preventDefault();
+    win_main.hide();
+    event.returnValue = false;
   })
+  win_main.on('close', (event) => {
+    event.preventDefault();
+  })
+  setTimeout(()=>{
+    win_main.webContents.send('playaudio' , {source:__dirname + '/audio/success.wav', volume: 1});
+  },2000)
 }
 
-app.on('ready', createWindow)
+app.on('ready', ()=>{
+  tray = new Tray(__dirname + '/img/dropplLogo.ico')
+  const contextMenu = Menu.buildFromTemplate([
+    {label: 'Open'},
+    {label: 'Quit'},
+  ])
+  tray.setToolTip('Droppl')
+  tray.setContextMenu(contextMenu)
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+  tray.on('click', () => {
+    win_main.show();
+  })
+
+  createWindow()
+})
+
+app.on('window-all-closed', (event) => {
+  event.preventDefault();
+  /*if (process.platform !== 'darwin') {
     app.quit()
-  }
+  }*/
 })
 
 app.on('activate', () => {
@@ -43,6 +61,20 @@ app.on('activate', () => {
   }
 })
 
+exports.addTorrent = (magnet) => {
+  if(client.get(magnet) == null) {
+    client.add(magnet, {path: app.getPath('downloads')}, (torrent)=>{
+      win_main.webContents.send('torrentAdded' , torrent);
+      torrent.on('done', function () {
+        win_main.webContents.send('torrentDone' , torrent);
+      })
+    });
+  } else {
+    win_main.webContents.send('torrentAdded' , client.get(magnet));
+  }
+}
+
+exports.webtorrent = client;
 
 exports.opendomainwindow = () => {
   // Create the browser window.
@@ -60,6 +92,10 @@ exports.opendomainwindow = () => {
   win_dom.on('closed', () => {
     win_dom = null
   })
+}
+
+exports.stopInitTimer = () => {
+  console.timeEnd('init')
 }
 
 exports.closedomainwindow = () => {

@@ -1,3 +1,9 @@
+@keyframes fadein
+  from
+    opacity: 0
+  to
+    opacity: 1
+
 body
   background: #363742
   display: flex
@@ -9,6 +15,7 @@ body
   flex-direction: row
   color: white !important
   overflow: hidden
+  animation: fadein 0.5s
 #sidebar
   background: #282733
   width: 300px
@@ -16,20 +23,19 @@ body
 #torrents
   flex: 1
   display: flex
-  width: calc(100vw - 300px)
-  justify-content: center
+  //width: calc(100vw - 300px)
   height: 100vh
-  overflow-y: scroll
-  flex-wrap: wrap
+  overflow-y: auto
+  overflow-x: hidden
+  flex-direction: column
+  align-items: center
   .torrent
-    height: 200px
-    width: 200px
-    background: #1f69ce
+    height: 150px
     display: flex
+    width: 100%
     justify-content: center
-    align-items: center
+    text-align: center
     flex-direction: column
-    margin: 10px
     position: relative
     h3
       font-weight: 300
@@ -42,6 +48,19 @@ body
     div
       position: absolute
       bottom: 0px
-      background: #52a94d
-      width: 200px
+      background: rgba(0,0,0,0.2)
+      width: 100%
       text-align: center
+      p
+        width: 100vw
+        margin: 0
+        line-height: 22px
+        background: rgba(0,0,0,0.1)
+  .addTorrent
+    border: 7px dashed rgba(255,255,255,0.15)
+    color: rgba(255,255,255,0.25)
+    font-size: 16px
+    height: 112px
+    border-radius: 20px
+    width: 90%
+    margin-top: 2.5%

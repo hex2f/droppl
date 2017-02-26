@@ -4,7 +4,8 @@
   "description": "The Torrent client that cares ❤",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pack": "build --dir",
+    "dist": "build"
   },
   "keywords": [
     "torrent"
@@ -16,8 +17,18 @@
     "electron-reload": "^1.1.0"
   },
   "dependencies": {
+    "jQuery": "^1.7.4",
     "node-json-db": "^0.7.3",
+    "play-sound": "^1.1.1",
     "vue": "^2.1.10",
-    "vue-electron": "^1.0.6"
+    "vue-electron": "^1.0.6",
+    "webtorrent": "^0.98.8"
+  },
+  "build": {
+    "appId": "droppl.me",
+    "mac": {
+      "category": "me.droppl.torrent.client"
+    },
+    "copyright": "Copyright © 2017 Hampus Lundqvist"
   }
 }
