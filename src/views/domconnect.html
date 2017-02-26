@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
+  <link rel="stylesheet" href="../style/domconnect.min.css">
+  <title>Connect To A Domain</title>
+</head>
+<body>
+  <h1>Connect To A Domain</h1>
+  <a href="#">How do i host a domain?</a>
+  <input type="text" id="domadress" placeholder="http://127.0.0.1:3000" oninput="this.style.border='0px solid red';">
+  <input type="text" id="dompasswd" placeholder="Password">
+  <input type="submit" id="domconnect" value="Connect" onclick="connectToDomain()">
+  <div class="loading" id="loader">
+    <div class="loading-bar"></div>
+    <div class="loading-bar"></div>
+    <div class="loading-bar"></div>
+    <div class="loading-bar"></div>
+  </div>
+
+  <script type="text/javascript">
+
+    function connectToDomain() {
+      var adr = domadress.value;
+      var pas = dompasswd.value;
+      var {ipcRenderer, remote} = require('electron');
+      var main = remote.require('./src/index.js');
+
+      if(adr != "") {
+        domconnect.style.display = "none";
+        loader.style.display = "block";
+        var socket = require('socket.io-client')(adr);
+        socket.on('connect', function(){
+          socket.emit('register', pas);
+        });
+        socket.on('connect_failed', function(){
+          domadress.style.border = "2px solid red";
+          domconnect.style.display = "block";
+          loader.style.display = "none";
+        });
+        socket.on('regfail', function(){
+          dompasswd.style.border = "2px solid red";
+          domconnect.style.display = "block";
+          loader.style.display = "none";
+        });
+        socket.on('regreturn', function(data){
+          localStorage.setItem('domainHost', adr);
+          localStorage.setItem('domainToken', data);
+          main.closedomainwindow();
+        });
+
+        setTimeout(()=>{
+          if(socket.connected != true){
+            domadress.style.border = "2px solid red";
+            domconnect.style.display = "block";
+            loader.style.display = "none";
+          }
+        },10000);
+
+      } else {
+        domadress.style.border = "2px solid red";
+      }
+    }
+  </script>
+</body>
+</html>

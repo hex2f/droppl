@@ -6,6 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
   <link rel="stylesheet" href="../style/upload.min.css">
+  <link rel="stylesheet" href="../style/check.min.css">
   <title>Upload</title>
 </head>
 <body>
@@ -21,8 +22,10 @@
     <div id="messagebox">
       <h1>Now Seeding</h1>
       <a href="#" id="udonemagnet">magnet://link.here</a><br><br>
-      <button type="button" name="udonecopy">Copy to clipboard</button><br>
-      <button type="button" name="udonedomain">Share to domain</button><br>
+      <button type="button" name="udonecopy" onclick="copyToClipboard()" id="udonecopy">Copy to clipboard</button>
+      <svg class="" style="display: none" id="copyDone" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark_circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark_check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg><br>
+      <button type="button" name="udonedomain" onclick="shareToDomain()" id="udonedomain">Share to domain</button>
+      <svg class="" style="display: none" id="domainDone" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark_circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark_check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg><br>
       <button type="button" name="udonenone" id="udonenone" onclick="closeUploadDone()">Close</button>
     </div>
   </div>
@@ -31,18 +34,43 @@
     var anime = require('animejs')
     var dragDrop = require('drag-drop')
     var WebTorrent = require('webtorrent')
-
+    var {ipcRenderer, remote} = require('electron');
+    var main = remote.require('./src/index.js');
     var client = new WebTorrent()
+    var {clipboard} = require('electron')
 
     document.addEventListener('dragover', event => event.preventDefault())
     document.addEventListener('drop', event => event.preventDefault())
-
+    var socket;
     function shareToDomain () {
+      if(localStorage.getItem('domainToken') != null) {
+        socket = require('socket.io-client')(localStorage.getItem('domainHost'));
+        socket.on('connect', function(){
+          setTimeout(()=>{socket.emit('uploadmagnet', {
+            token: localStorage.getItem('domainToken'),
+            magnet: udonemagnet.href,
+            id: udonemagnet.innerHTML,
+            name: udonemagnet.dataset.torname
+          });},1000);
 
+          domainDone.style.display = "block";
+          udonedomain.style.display = "none";
+          domainDone.classList.add('checkmark');
+        });
+
+      } else {
+        main.opendomainwindow();
+        domainDone.style.display = "block";
+        udonedomain.style.display = "none";
+        domainDone.classList.add('checkmark');
+      }
     }
 
     function copyToClipboard () {
-
+      clipboard.writeText(udonemagnet.href);
+      copyDone.style.display = "block";
+      udonecopy.style.display = "none";
+      copyDone.classList.add('checkmark');
     }
 
     function closeUploadDone () {
@@ -52,7 +80,14 @@
         scale: [1,1.2],
         duration: 2000,
       });
-      setTimeout(()=>{uploaddone.style.display = 'none'},2000);
+      setTimeout(()=>{
+        uploaddone.style = ''
+        domainDone.style.display = "none";
+        udonedomain.style = "";
+        udonecopy.style = "";
+        copyDone.style.display = "none";
+        domainDone.classList.remove('checkmark');
+      },2000);
     }
 
     // When user drops files on the browser, create a new torrent and start seeding it!
@@ -86,6 +121,7 @@
         //droploadbg = {};
         dropstatus.innerHTML = "+"
         uploaddone.style.display = "flex";
+        udonemagnet.dataset.torname = torrent.name;
         anime({
           targets: '#uploaddone',
           opacity: [0,1],
