@@ -1,5 +1,7 @@
 console.time('init')
 
+var isWin = /^win/.test(process.platform);
+
 const {app, BrowserWindow, dialog, Menu, Tray, ipcMain} = require('electron')
 const path = require('path')
 const url = require('url')
@@ -16,58 +18,79 @@ let tray
 require('electron-reload')(__dirname);
 
 function createWindow () {
-  win_main = new BrowserWindow({width: 1200, height: 800, icon: __dirname + '/img/dropplLogo.png', backgroundColor: '#363742'})
-  win_main.loadURL(path.join(__dirname, '/views/main.html'))
+  win_main = new BrowserWindow({width: 1200, height: 800, icon: __dirname + '/img/dropplLogo.ico', backgroundColor: '#363742'})
+  win_main.loadURL(url.format({
+    pathname: path.join(__dirname, '/views/main.html'),
+    protocol: 'file:',
+    slashes: true
+  }))
 
-  win_main.on('beforeunload', (event) => {
-    //event.preventDefault();
-    win_main.hide();
-    event.returnValue = false;
-  })
+  if(isWin) {
+    win_main.on('beforeunload', (event) => {
+      //event.preventDefault()
+      win_main.hide();
+      event.returnValue = false;
+    })
+  }
   win_main.on('close', (event) => {
-    event.preventDefault();
+    if(isWin) {
+      event.preventDefault();
+    } else {
+      win_main = null;
+    }
   })
-  setTimeout(()=>{
-    win_main.webContents.send('playaudio' , {source:__dirname + '/audio/success.wav', volume: 1});
-  },2000)
 }
 
 app.on('ready', ()=>{
-  tray = new Tray(__dirname + '/img/dropplLogo.ico')
-  const contextMenu = Menu.buildFromTemplate([
-    {label: 'Open'},
-    {label: 'Quit'},
-  ])
-  tray.setToolTip('Droppl')
-  tray.setContextMenu(contextMenu)
+  if(isWin) {
+    tray = new Tray(__dirname + '/img/dropplLogo.ico')
+    const contextMenu = Menu.buildFromTemplate([
+      {label: 'Open'},
+      {label: 'Quit'},
+    ])
+    tray.setToolTip('Droppl')
+    tray.setContextMenu(contextMenu)
 
-  tray.on('click', () => {
-    win_main.show();
-  })
+    tray.on('click', () => {
+      win_main.show();
+    })
+  }
 
   createWindow()
 })
 
 app.on('window-all-closed', (event) => {
-  event.preventDefault();
-  /*if (process.platform !== 'darwin') {
-    app.quit()
-  }*/
+  if(isWin){
+    event.preventDefault();
+  } else {
+    app.quit();
+  }
 })
 
 app.on('activate', () => {
-  if (win_upload === null) {
+  if (win_main === null) {
     createWindow()
   }
 })
 
 exports.addTorrent = (magnet) => {
   if(client.get(magnet) == null) {
+    console.log('New torrent')
     client.add(magnet, {path: app.getPath('downloads')}, (torrent)=>{
-      win_main.webContents.send('torrentAdded' , torrent);
+      console.log('Added')
+      torrent.on('ready', function () {
+        console.log('Ready')
+        win_main.webContents.send('playaudio' , {source: __dirname + '/audio/notification.wav', volume: 1});
+        win_main.webContents.send('torrentAdded' , torrent);
+      })
+      torrent.on('error', function () {
+        console.log('Error')
+        win_main.webContents.send('torrentError' , torrent);
+      })
       torrent.on('done', function () {
+        console.log('Done')
         win_main.webContents.send('torrentDone' , torrent);
-        win_main.webContents.send('playaudio' , {source: __dirname + '/audio/success.wav'});
+        win_main.webContents.send('playaudio' , {source: __dirname + '/audio/success.wav', volume: 1});
       })
     });
   } else {

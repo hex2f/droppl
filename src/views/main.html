@@ -6,11 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
   <link rel="stylesheet" href="../style/main.min.css">
-  <script src="../scripts/us.js" charset="utf-8"></script>
   <script src="../vue.min.js" charset="utf-8"></script>
   <title>Droppl</title>
 </head>
 <body>
+  <div id="notification"><p>Processing Torrent</p></div>
   <div id="topbar"></div>
   <div id="torrents">
     <div class="torrent" v-for="torrent in torrents" v-bind:style="{background: 'linear-gradient(to bottom right, hsl(' + torrent.color + ', 80%, 48%), hsl(' + torrent.color + ' , 47%, 41%))'}">
