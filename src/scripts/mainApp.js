@@ -3,6 +3,8 @@ var main = remote.require('./src/index.js');
 var anime = require('animejs');
 var $ = require('jQuery');
 var c2c = require('colorcolor');
+var dragDrop = require('drag-drop');
+const {shell} = require('electron')
 
 document.addEventListener('drop', function(e) {
   e.preventDefault();
@@ -29,34 +31,83 @@ function notification(message, state) {
     notif.style.opacity = 0;
   }
 }
-/*
-{
-  filename: 'AReallYCoolFile.txt',
-  filesize: '246',
-  progress: '78%',
-  speed: '2.5',
-  peers: 21,
-  color: Math.floor(Math.random()*360)
-},
-*/
+
 var torrentApp = new Vue({
   el: '#torrents',
   data: {
     torrents: [
+    ],
+    doneTorrents: [
     ]
+  },
+  methods: {
+    openFile: function (path) {
+      shell.openItem(path);
+    },
+    toggleDropdown: function (torrent) {
+      var dti = torrentApp.doneTorrents.indexOf(torrent);
+      var nti = torrentApp.torrents.indexOf(torrent);
+      console.log(dti)
+      if(dti != -1) {
+        console.log(torrentApp.doneTorrents[dti].dropdown)
+        if(torrentApp.doneTorrents[dti].dropdown == "0px")
+          Vue.set(torrentApp.doneTorrents[dti], "dropdown", "116px");
+        else if(torrentApp.doneTorrents[dti].dropdown == "116px")
+          Vue.set(torrentApp.doneTorrents[dti], "dropdown", "0px");
+      }
+    }
   }
 })
+
+if(localStorage.getItem('doneTorrents') != null) {
+  torrentApp.doneTorrents = JSON.parse(localStorage.getItem('doneTorrents'));
+}
+
+function msToTime(duration) {
+    var seconds = parseInt((duration/1000)%60)
+        , minutes = parseInt((duration/(1000*60))%60)
+        , hours = parseInt((duration/(1000*60*60))%24);
+
+    hours = (hours < 10) ? "0" + hours : hours;
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+    return hours + ":" + minutes + ":" + seconds
+}
 
 var ipc = require('electron').ipcRenderer;
 require('electron').ipcRenderer.on('playaudio' , function(event , data){ soundPlayer.src = data.source; soundPlayer.volume = data.volume; soundPlayer.play(); console.log(data) });
 require('electron').ipcRenderer.on('torrentAdded' , function(event , data){
+  console.log('torrentAdded', data);
   notification("Processing Torrent", false);
+  soundPlayer.src = "../audio/notification.wav"; soundPlayer.volume = 1; soundPlayer.play();
   isDownloading = true;
   checkTorrents()
 });
 require('electron').ipcRenderer.on('torrentError' , function(event , data){
+  console.log('torrentError', data);
   notification("Error Processing Torrent", false);
-  setTimeout(()=>{notification("Processing Torrent", false)},500);
+  soundPlayer.src = "../audio/notification.wav"; soundPlayer.volume = 1; soundPlayer.play();
+  setTimeout(()=>{notification("Processing Torrent", true)},500);
+});
+
+require('electron').ipcRenderer.on('torrentDone' , function(event , data){
+  checkTorrents();
+  console.log('torrentDone', data);
+  notification("Torrent Downloaded", true);
+  soundPlayer.src = "../audio/success.wav"; soundPlayer.volume = 1; soundPlayer.play();
+  torrentApp.doneTorrents.push({
+    filename: data.name,
+    filesize: Math.round(data.length/1024/1024*100)/100,
+    path: data.path.replace("/", "\\")+"\\"+data.name,
+    progress: Math.floor(data.progress*100)+"%",
+    color: c2c('#'+data.infoHash.substring(0,6), 'hsl').split("(")[1].split(",")[0],
+    canStream: true,
+    paused: data.paused,
+    dropdown: "0px"
+  })
+  localStorage.setItem("doneTorrents", JSON.stringify(torrentApp.doneTorrents));
+  setTimeout(()=>{notification("Torrent Downloaded", false)},2500);
 });
 
 function checkTorrents() {
@@ -66,11 +117,16 @@ function checkTorrents() {
     var data = torrents[i]
     temparr.push({
       filename: data.name,
-      filesize: Math.round(data.info.length/1024/1024*100)/100,
+      received: Math.round(data.received/1024/1024*100)/100,
+      filesize: Math.round(data.length/1024/1024*100)/100,
       progress: Math.floor(data.progress*100)+"%",
+      eta: msToTime(data.timeRemaining),
       speed: Math.round(data.downloadSpeed/1024/1024*100)/100,
       peers: data._peersLength,
-      color: c2c('#'+data.infoHash.substring(0,6), 'hsl').split("(")[1].split(",")[0]
+      color: c2c('#'+data.infoHash.substring(0,6), 'hsl').split("(")[1].split(",")[0],
+      canStream: false,
+      paused: data.paused,
+      dropdown: "0px"
     })
   }
   torrentApp.torrents = temparr;
@@ -79,22 +135,21 @@ function checkTorrents() {
 var isDownloading = false;
 
 setInterval(()=>{
-  if(isDownloading)
+  if(isDownloading) {
     checkTorrents();
+  }
 },250);
 setInterval(()=>{
-  if(main.webtorrent.progress == 10) {
+  if(main.webtorrent.progress != 0) {
+    isDownloading = true;
+  } else {
     isDownloading = false;
     checkTorrents();
-  } else {
-    isDownloading = true;
   }
 },1000);
-
-//main.addTorrent('magnet:?xt=urn:btih:58e92626e811b9338745c98116dcedf7e7093ee8&dn=Sylenth1.2.1&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fpublic.popcorn-tracker.org%3A6969');
-setTimeout(()=>{
-  main.addTorrent('magnet:?xt=urn:btih:a649447e3b15ce2d5e6cfc3a53a00274393a3933&dn=Lennar+Digital+Sylenth1+v.2.21+x64+x32&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fpublic.popcorn-tracker.org%3A6969');
-}, 3500)
+/*
+magnet:?xt=urn:btih:58e92626e811b9338745c98116dcedf7e7093ee8&dn=Sylenth1.2.1&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fpublic.popcorn-tracker.org%3A6969
+*/
 
 
 $("body").on("paste", function(event) {
@@ -107,11 +162,9 @@ $("body").on("paste", function(event) {
     }
 });
 
-$("#drop").on("drop", function(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    console.log(event);
-    console.log(event.dataTransfer);
+dragDrop('#drop', function (files) {
+  main.addTorrent(files[0].path);
+  notification("Processing Torrent", true);
 });
 
 main.stopInitTimer()

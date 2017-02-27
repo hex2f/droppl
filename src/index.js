@@ -18,7 +18,7 @@ let tray
 require('electron-reload')(__dirname);
 
 function createWindow () {
-  win_main = new BrowserWindow({width: 1200, height: 800, icon: __dirname + '/img/dropplLogo.ico', backgroundColor: '#363742'})
+  win_main = new BrowserWindow({width: 560, height: 750, icon: __dirname + '/img/dropplLogo.ico', backgroundColor: '#363742'})
   win_main.loadURL(url.format({
     pathname: path.join(__dirname, '/views/main.html'),
     protocol: 'file:',
@@ -76,21 +76,16 @@ app.on('activate', () => {
 exports.addTorrent = (magnet) => {
   if(client.get(magnet) == null) {
     console.log('New torrent')
-    client.add(magnet, {path: app.getPath('downloads')}, (torrent)=>{
-      console.log('Added')
-      torrent.on('ready', function () {
-        console.log('Ready')
-        win_main.webContents.send('playaudio' , {source: __dirname + '/audio/notification.wav', volume: 1});
-        win_main.webContents.send('torrentAdded' , torrent);
-      })
+    client.add(magnet, {path: app.getPath('downloads') + "/" + Math.random()}, (torrent)=>{
+      win_main.webContents.send('torrentAdded' , torrent);
+
       torrent.on('error', function () {
-        console.log('Error')
         win_main.webContents.send('torrentError' , torrent);
       })
       torrent.on('done', function () {
-        console.log('Done')
         win_main.webContents.send('torrentDone' , torrent);
-        win_main.webContents.send('playaudio' , {source: __dirname + '/audio/success.wav', volume: 1});
+        torrent.destroy(()=>{})
+        //win_main.webContents.send('playaudio' , {source: __dirname + '/audio/success.wav', volume: 1});
       })
     });
   } else {
