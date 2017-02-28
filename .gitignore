@@ -5,3 +5,6 @@ src/server/torrents\.json
 
 # ignore npm log files upon failure
 npm-debug.log*
+
+# OS specific temp files
+.DS_STORE
