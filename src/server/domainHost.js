@@ -8,7 +8,7 @@ function gentoken(len) {
 }
 
 if(process.argv[3] == null) {
-  console.log('Usage: node domainHost.js <PORT> <PASSWORD> <CACHE PATH>');
+  console.log('Usage: node domainHost.js <PORT> <PASSWORD>');
 } else {
   var JsonDB = require('node-json-db');
   var db = new JsonDB("torrents", true, false);
@@ -16,15 +16,10 @@ if(process.argv[3] == null) {
   var client = new WebTorrent();
 
   var password;
-  var cpath = './cache/'; // no-unused-vars
   var token = 'DEGUB_TOKEN';
 
   if(process.argv[3] != null) {
     password = process.argv[3];
-  }
-
-  if(process.argv[4] != null) {
-    cpath = process.argv[4];
   }
 
   var io = require('socket.io')();
@@ -52,21 +47,21 @@ if(process.argv[3] == null) {
         db.push(`/${data['id'] + '___' + id}/link`, data['magnet']);
         client.add(data['magnet'], function (torrent) {
           console.log('Server is caching:', torrent.infoHash);
-          torrent.files.forEach(file => {
-            socket.emit('serverchached', true);
+          torrent.files.forEach(function (file) {
+            socket.emit('serverchached', file);
           });
         });
-        setTimeout(() => db.save(), 1000);
+        setTimeout(()=>{db.save();}, 1000);
         console.log(`New magnet link /${socket.id}/${data['id']}/${id}`);
       } else {
         console.log('Auth Denied');
       }
     });
 
-    socket.on('getallmagnets', function (data) {
+    socket.on('getallmagnets', function () {
       var dbdata = db.getData("/");
       console.log('Get all magnets from '+socket.id);
-      var tmparr = [,];
+      var tmparr = [];
       for (var socketid in dbdata) {
         tmparr.push({ name: dbdata[socketid]['name'], magnet: dbdata[socketid]['link']});
       }

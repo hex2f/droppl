@@ -5,6 +5,7 @@ var isWin = /^win/.test(process.platform);
 const {app, BrowserWindow, dialog, Menu, Tray} = require('electron');
 const path = require('path');
 const url = require('url');
+const fs = require('fs');
 var WebTorrent = require('webtorrent');
 var client = new WebTorrent();
 
@@ -76,7 +77,7 @@ app.on('activate', () => {
 exports.addTorrent = (magnet) => {
   if(client.get(magnet) == null) {
     console.log('New torrent');
-    client.add(magnet, {path: app.getPath('downloads') + "/" + Math.random()}, (torrent)=>{
+    client.add(magnet, {path: app.getPath('downloads') + "/droppl"}, (torrent)=>{
       win_main.webContents.send('torrentAdded' , torrent);
 
       torrent.on('error', function () {
@@ -85,7 +86,6 @@ exports.addTorrent = (magnet) => {
       torrent.on('done', function () {
         win_main.webContents.send('torrentDone' , torrent);
         torrent.destroy(()=>{});
-        //win_main.webContents.send('playaudio' , {source: __dirname + '/audio/success.wav', volume: 1});
       });
     });
   } else {
