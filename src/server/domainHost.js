@@ -1,30 +1,25 @@
+function gentoken(len) {
+  var pos = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  var tok = '';
+  for (var i = 0; i < len; i++) {
+    tok+=pos.charAt(Math.floor(Math.random()*pos.length));
+  }
+  return tok;
+}
+
 if(process.argv[3] == null) {
-  console.log('Usage: node domainHost.js <PORT> <PASSWORD> <CACHE PATH>');
+  console.log('Usage: node domainHost.js <PORT> <PASSWORD>');
 } else {
   var JsonDB = require('node-json-db');
   var db = new JsonDB("torrents", true, false);
-  var WebTorrent = require('webtorrent')
-  var client = new WebTorrent()
-
-  function gentoken(len) {
-    var pos = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    var tok = '';
-    for (var i = 0; i < len; i++) {
-      tok+=pos.charAt(Math.floor(Math.random()*pos.length));
-    }
-    return tok;
-  }
+  var WebTorrent = require('webtorrent');
+  var client = new WebTorrent();
 
   var password;
-  var cpath = './cache/';
   var token = 'DEGUB_TOKEN';
 
   if(process.argv[3] != null) {
     password = process.argv[3];
-  }
-
-  if(process.argv[4] != null) {
-    cpath = process.argv[4];
   }
 
   var io = require('socket.io')();
@@ -51,24 +46,24 @@ if(process.argv[3] == null) {
         db.push(`/${data['id'] + '___' + id}/name`, data['name']);
         db.push(`/${data['id'] + '___' + id}/link`, data['magnet']);
         client.add(data['magnet'], function (torrent) {
-          console.log('Server is caching:', torrent.infoHash)
+          console.log('Server is caching:', torrent.infoHash);
           torrent.files.forEach(function (file) {
-            socket.emit('serverchached', true)
-          })
-        })
-        setTimeout(()=>{db.save()}, 1000);
+            socket.emit('serverchached', file);
+          });
+        });
+        setTimeout(()=>{db.save();}, 1000);
         console.log(`New magnet link /${socket.id}/${data['id']}/${id}`);
       } else {
-        console.log('Auth Denied')
+        console.log('Auth Denied');
       }
     });
 
-    socket.on('getallmagnets', function (data) {
+    socket.on('getallmagnets', function () {
       var dbdata = db.getData("/");
       console.log('Get all magnets from '+socket.id);
-      var tmparr = [,];
+      var tmparr = [];
       for (var socketid in dbdata) {
-        tmparr.push({ name: dbdata[socketid]['name'], magnet: dbdata[socketid]['link']})
+        tmparr.push({ name: dbdata[socketid]['name'], magnet: dbdata[socketid]['link']});
       }
       tmparr.shift();
       socket.emit('allmagnets', tmparr);

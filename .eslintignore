@@ -1,0 +1,2 @@
+# ignore minified version of vue because that thing is full of linting errors :D
+src/vue.min.js

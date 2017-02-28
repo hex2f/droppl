@@ -1,10 +1,10 @@
-var {ipcRenderer, remote, clipboard} = require('electron');
+var {remote, clipboard} = require('electron');
 var main = remote.require('./src/index.js');
-var anime = require('animejs');
 var $ = require('jQuery');
+var Vue = require('../vue.dev.js');
 var c2c = require('colorcolor');
 var dragDrop = require('drag-drop');
-const {shell} = require('electron')
+const {shell} = require('electron');
 
 document.addEventListener('drop', function(e) {
   e.preventDefault();
@@ -25,7 +25,7 @@ function notification(message, state) {
   if(state == true) {
     notif.style.top = "20px";
     notif.style.opacity = 1;
-    notif.innerHTML = `<p>${message}</p>`
+    notif.innerHTML = `<p>${message}</p>`;
   } else {
     notif.style.top = "-100px";
     notif.style.opacity = 0;
@@ -44,20 +44,34 @@ var torrentApp = new Vue({
     openFile: function (path) {
       shell.openItem(path);
     },
+    removeTorrent: function (type, torrent) {
+      if(type == 0) {
+        main.webtorrent.remove(torrent, ()=>{
+          notification("Torrent Removed", true);
+          setTimeout(()=>{notification("Torrent Removed", false);});
+        });
+      } else {
+        torrentApp.doneTorrents.splice(torrentApp.torrents.indexOf(torrent), 1);
+        localStorage.setItem("doneTorrents", JSON.stringify(torrentApp.doneTorrents));
+      }
+    },
     toggleDropdown: function (torrent) {
       var dti = torrentApp.doneTorrents.indexOf(torrent);
       var nti = torrentApp.torrents.indexOf(torrent);
-      console.log(dti)
       if(dti != -1) {
-        console.log(torrentApp.doneTorrents[dti].dropdown)
         if(torrentApp.doneTorrents[dti].dropdown == "0px")
           Vue.set(torrentApp.doneTorrents[dti], "dropdown", "116px");
         else if(torrentApp.doneTorrents[dti].dropdown == "116px")
           Vue.set(torrentApp.doneTorrents[dti], "dropdown", "0px");
+      } else if(nti != -1) {
+        if(torrentApp.torrents[nti].dropdown == "0px")
+          Vue.set(torrentApp.torrents[nti], "dropdown", "116px");
+        else if(torrentApp.torrents[nti].dropdown == "116px")
+          Vue.set(torrentApp.torrents[nti], "dropdown", "0px");
       }
     }
   }
-})
+});
 
 if(localStorage.getItem('doneTorrents') != null) {
   torrentApp.doneTorrents = JSON.parse(localStorage.getItem('doneTorrents'));
@@ -72,26 +86,28 @@ function msToTime(duration) {
     minutes = (minutes < 10) ? "0" + minutes : minutes;
     seconds = (seconds < 10) ? "0" + seconds : seconds;
 
-    return hours + ":" + minutes + ":" + seconds
+    return hours + ":" + minutes + ":" + seconds;
 }
 
 var ipc = require('electron').ipcRenderer;
-require('electron').ipcRenderer.on('playaudio' , function(event , data){ soundPlayer.src = data.source; soundPlayer.volume = data.volume; soundPlayer.play(); console.log(data) });
-require('electron').ipcRenderer.on('torrentAdded' , function(event , data){
+var soundPlayer = $('#soundPlayer').get(0);
+
+ipc.on('playaudio' , function(event , data){ soundPlayer.src = data.source; soundPlayer.volume = data.volume; soundPlayer.play(); });
+ipc.on('torrentAdded' , function(event , data){
   console.log('torrentAdded', data);
   notification("Processing Torrent", false);
   soundPlayer.src = "../audio/notification.wav"; soundPlayer.volume = 1; soundPlayer.play();
   isDownloading = true;
-  checkTorrents()
+  checkTorrents();
 });
-require('electron').ipcRenderer.on('torrentError' , function(event , data){
+ipc.on('torrentError' , function(event , data){
   console.log('torrentError', data);
   notification("Error Processing Torrent", false);
   soundPlayer.src = "../audio/notification.wav"; soundPlayer.volume = 1; soundPlayer.play();
-  setTimeout(()=>{notification("Processing Torrent", true)},500);
+  setTimeout(()=>{notification("Processing Torrent", true);},500);
 });
 
-require('electron').ipcRenderer.on('torrentDone' , function(event , data){
+ipc.on('torrentDone' , function(event , data){
   checkTorrents();
   console.log('torrentDone', data);
   notification("Torrent Downloaded", true);
@@ -104,17 +120,18 @@ require('electron').ipcRenderer.on('torrentDone' , function(event , data){
     color: c2c('#'+data.infoHash.substring(0,6), 'hsl').split("(")[1].split(",")[0],
     canStream: true,
     paused: data.paused,
-    dropdown: "0px"
-  })
+    dropdown: "0px",
+    magnet: data.magnetURI
+  });
   localStorage.setItem("doneTorrents", JSON.stringify(torrentApp.doneTorrents));
-  setTimeout(()=>{notification("Torrent Downloaded", false)},2500);
+  setTimeout(()=>{notification("Torrent Downloaded", false);},2500);
 });
 
 function checkTorrents() {
   var torrents = main.webtorrent.torrents;
   var temparr = [];
   for (var i = 0; i < torrents.length; i++) {
-    var data = torrents[i]
+    var data = torrents[i];
     temparr.push({
       filename: data.name,
       received: Math.round(data.received/1024/1024*100)/100,
@@ -126,8 +143,9 @@ function checkTorrents() {
       color: c2c('#'+data.infoHash.substring(0,6), 'hsl').split("(")[1].split(",")[0],
       canStream: false,
       paused: data.paused,
-      dropdown: "0px"
-    })
+      dropdown: "0px",
+      magnet: data.magnetURI
+    });
   }
   torrentApp.torrents = temparr;
 }
@@ -147,17 +165,12 @@ setInterval(()=>{
     checkTorrents();
   }
 },1000);
-/*
-magnet:?xt=urn:btih:58e92626e811b9338745c98116dcedf7e7093ee8&dn=Sylenth1.2.1&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fpublic.popcorn-tracker.org%3A6969
-*/
-
 
 $("body").on("paste", function(event) {
     event.preventDefault();
     event.stopPropagation();
     if(clipboard.readText().length > 2) {
       main.addTorrent(clipboard.readText());
-      console.log(clipboard.readText())
       notification("Processing Torrent", true);
     }
 });
@@ -167,4 +180,4 @@ dragDrop('#drop', function (files) {
   notification("Processing Torrent", true);
 });
 
-main.stopInitTimer()
+main.stopInitTimer();

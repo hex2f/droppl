@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
   <link rel="stylesheet" href="../fa/css/font-awesome.min.css">
   <link rel="stylesheet" href="../style/main.min.css">
-  <script src="../vue.min.js" charset="utf-8"></script>
+
   <title>Droppl</title>
 </head>
 <body>
@@ -23,7 +23,7 @@
           <li v-on:click="openFile(torrent.path)">Open</li>
           <li v-if="!torrent.paused">Pause</li>
           <li v-if="torrent.paused">Resume</li>
-          <li>Remove</li>
+          <li v-on:click="removeTorrent(1, torrent.magnet)">Remove</li>
         </ul>
       </div>
       <h3>{{torrent.filename}}</h3>
@@ -40,7 +40,7 @@
           <li v-on:click="openFile(torrent.path)">Open</li>
           <li v-if="!torrent.paused">Pause</li>
           <li v-if="torrent.paused">Resume</li>
-          <li>Cancel</li>
+          <li v-on:click="removeTorrent(0, torrent.magnet)">Cancel</li>
         </ul>
       </div>
       <h3>{{torrent.filename}}</h3>

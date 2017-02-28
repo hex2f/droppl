@@ -4,6 +4,7 @@
   "description": "The Torrent client that cares ❤",
   "main": "index.js",
   "scripts": {
+    "ci:eslint": "node_modules/.bin/eslint . --config .eslintrc.json",
     "pack": "build --dir",
     "dist": "build"
   },
@@ -14,14 +15,18 @@
   "license": "MIT",
   "devDependencies": {
     "electron-auto-updater": "^1.0.0",
-    "electron-reload": "^1.1.0"
+    "electron-reload": "^1.1.0",
+    "eslint": "^3.16.1",
+    "eslint-config-airbnb-base": "^11.1.0",
+    "eslint-plugin-import": "^2.2.0"
   },
   "dependencies": {
     "colorcolor": "^1.1.1",
+    "drag-drop": "^2.13.2",
     "jQuery": "^1.7.4",
     "node-json-db": "^0.7.3",
     "play-sound": "^1.1.1",
-    "vue": "^2.1.10",
+    "vue": "^2.2.1",
     "vue-electron": "^1.0.6",
     "webtorrent": "^0.98.8"
   },
