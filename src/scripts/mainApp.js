@@ -75,6 +75,8 @@ function msToTime(duration) {
     return hours + ":" + minutes + ":" + seconds
 }
 
+// FIXME: why are you requiring ipc renderer each time even after you already stored a reference in "var ipc"?
+// FIXME: never assigned soundPlayer...
 var ipc = require('electron').ipcRenderer;
 require('electron').ipcRenderer.on('playaudio' , function(event , data){ soundPlayer.src = data.source; soundPlayer.volume = data.volume; soundPlayer.play(); console.log(data) });
 require('electron').ipcRenderer.on('torrentAdded' , function(event , data){

@@ -148,7 +148,7 @@ exports.openuploadwindow = () => {
       if(resp == 1) {
         win_upload.hide();
         win_upload = null
-      } else {
+      } else { // no-empty
 
       }
     });
