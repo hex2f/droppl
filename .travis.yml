@@ -2,11 +2,6 @@ sudo: false
 
 language: node_js
 
-branches:
-  only:
-    - master
-    - ActiveDev
-
 node_js:
   - 7
   - 6
