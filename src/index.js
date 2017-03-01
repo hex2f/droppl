@@ -16,10 +16,19 @@ let win_main;
 let win_dom;
 let tray;
 
-require('electron-reload')(__dirname);
+// this package is only needed during development
+if(process.env.NODE_ENV == 'development') {
+  require('electron-reload')(__dirname);
+}
 
 function createWindow () {
   win_main = new BrowserWindow({width: 560, height: 750, icon: __dirname + '/img/dropplLogo.ico', backgroundColor: '#363742'});
+
+  // make sure we open up devtools during development
+  if(process.env.NODE_ENV == 'development') {
+    win_main.webContents.openDevTools();
+  }
+
   win_main.loadURL(url.format({
     pathname: path.join(__dirname, '/views/main.html'),
     protocol: 'file:',
