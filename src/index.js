@@ -14,6 +14,7 @@ var client = new WebTorrent();
 let win_upload;
 let win_main;
 let win_dom;
+let win_viewer;
 let tray;
 
 // this package is only needed during development
@@ -37,7 +38,6 @@ function createWindow () {
 
   if(isWin) {
     win_main.on('beforeunload', (event) => {
-      //event.preventDefault()
       win_main.hide();
       event.returnValue = false;
     });
@@ -94,7 +94,6 @@ exports.addTorrent = (magnet) => {
       });
       torrent.on('done', function () {
         win_main.webContents.send('torrentDone' , torrent);
-        torrent.destroy(()=>{});
       });
     });
   } else {
@@ -105,18 +104,15 @@ exports.addTorrent = (magnet) => {
 exports.webtorrent = client;
 
 exports.opendomainwindow = () => {
-  // Create the browser window.
   win_dom = new BrowserWindow({width: 400, height: 400});
   win_dom.setMenu(null);
 
-  // and load the index.html of the app.
   win_dom.loadURL(url.format({
     pathname: path.join(__dirname, '/views/domconnect.html'),
     protocol: 'file:',
     slashes: true
   }));
 
-  // Emitted when the window is closed.
   win_dom.on('closed', () => {
     win_dom = null;
   });
@@ -130,22 +126,36 @@ exports.closedomainwindow = () => {
   win_dom.close();
 };
 
-exports.openuploadwindow = () => {
-  // Create the browser window.
-  win_upload = new BrowserWindow({width: 800, height: 600});
-  //win_upload.setMenu(null);
+exports.win_viewer = win_viewer;
 
-  // and load the index.html of the app.
+exports.openviewer = (magnet) => {
+  win_viewer = new BrowserWindow({width: 1280, height: 720});
+
+  win_viewer.loadURL(url.format({
+    pathname: path.join(__dirname, '/views/viewer.html'),
+    protocol: 'file:',
+    slashes: true
+  }));
+
+  win_viewer.webContents.on('dom-ready', () => {
+    win_viewer.webContents.send('openFile' , magnet);
+  });
+
+
+  win_viewer.on('close', () => {
+    win_viewer = null;
+  });
+  exports.win_viewer = win_viewer;
+};
+
+exports.openuploadwindow = () => {
+  win_upload = new BrowserWindow({width: 800, height: 600});
+
   win_upload.loadURL(url.format({
     pathname: path.join(__dirname, '/views/index.html'),
     protocol: 'file:',
     slashes: true
   }));
-
-  // Emitted when the window is closed.
-  /*win_upload.on('closed', () => {
-    win_upload = null
-  })*/
 
   win_upload.on('close', (e) => {
     e.preventDefault();
