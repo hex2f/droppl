@@ -1,3 +1,4 @@
+# no need to use sudo
 sudo: false
 
 language: node_js
@@ -6,7 +7,14 @@ node_js:
   - 7
   - 6
 
-cache: yarn
+cache:
+  directories:
+    - $HOME/.npm
+    - $HOME/.yarn-cache
+    - node_modules
+
+before_install:
+  - npm install -g yarn --cache-min 999999999
 
 install:
   - yarn
