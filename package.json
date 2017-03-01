@@ -5,8 +5,14 @@
   "main": "index.js",
   "scripts": {
     "ci:eslint": "node_modules/.bin/eslint . --config .eslintrc.json",
-    "pack": "build --dir",
-    "dist": "build"
+    "clean": "rimraf dist/",
+    "prepackage": "npm run clean",
+    "package": "cross-env NODE_ENV=production node_modules/.bin/build",
+    "package:linux": "cross-env NODE_ENV=production node_modules/.bin/build --linux",
+    "package:mac": "cross-env NODE_ENV=production node_modules/.bin/build --mac",
+    "package:win": "cross-env NODE_ENV=production node_modules/.bin/build --win --x64",
+    "package:test": "cross-env NODE_ENV=production node_modules/.bin/build --dir",
+    "start": "cross-env NODE_ENV=development node_modules/.bin/electron ."
   },
   "keywords": [
     "torrent"
@@ -14,11 +20,14 @@
   "author": "RekkyRek",
   "license": "MIT",
   "devDependencies": {
-    "electron-auto-updater": "^1.0.0",
+    "cross-env": "^3.1.4",
+    "electron": "^1.4.15",
+    "electron-builder": "^14.5.3",
     "electron-reload": "^1.1.0",
     "eslint": "^3.16.1",
     "eslint-config-airbnb-base": "^11.1.0",
-    "eslint-plugin-import": "^2.2.0"
+    "eslint-plugin-import": "^2.2.0",
+    "rimraf": "^2.6.1"
   },
   "dependencies": {
     "colorcolor": "^1.1.1",
