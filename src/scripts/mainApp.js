@@ -1,6 +1,6 @@
 var {remote, clipboard} = require('electron');
 var main = remote.require('./src/index.js');
-var $ = require('jQuery');
+var $ = require('jquery');
 var Vue = require('../vue.dev.js');
 var c2c = require('colorcolor');
 var dragDrop = require('drag-drop');
