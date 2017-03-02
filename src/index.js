@@ -83,17 +83,19 @@ app.on('activate', () => {
   }
 });
 
+exports.app = app;
+
 exports.addTorrent = (magnet) => {
   if(client.get(magnet) == null) {
     console.log('New torrent');
     client.add(magnet, {path: app.getPath('downloads') + "/droppl"}, (torrent)=>{
       win_main.webContents.send('torrentAdded' , torrent);
-
       torrent.on('error', function () {
         win_main.webContents.send('torrentError' , torrent);
       });
       torrent.on('done', function () {
         win_main.webContents.send('torrentDone' , torrent);
+        torrent.destroy();
       });
     });
   } else {
@@ -126,9 +128,21 @@ exports.closedomainwindow = () => {
   win_dom.close();
 };
 
+exports.mediaFiles = [
+	'mp4',
+	'webm',
+	'ogg',
+	'flac',
+	'mse',
+	'aac',
+	'mp3',
+	'wav'
+];
+
 exports.win_viewer = win_viewer;
 
 exports.openviewer = (magnet) => {
+  if(client.get(magnet) != null) client.get(magnet).destroy();
   win_viewer = new BrowserWindow({width: 1280, height: 720});
 
   win_viewer.loadURL(url.format({

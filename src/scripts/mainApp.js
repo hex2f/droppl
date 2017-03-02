@@ -55,6 +55,10 @@ var torrentApp = new Vue({
         localStorage.setItem("doneTorrents", JSON.stringify(torrentApp.doneTorrents));
       }
     },
+    openstream: function (magnet) {
+      console.log(magnet);
+      main.openviewer(magnet);
+    },
     toggleDropdown: function (torrent) {
       var dti = torrentApp.doneTorrents.indexOf(torrent);
       var nti = torrentApp.torrents.indexOf(torrent);
@@ -132,6 +136,15 @@ function checkTorrents() {
   var temparr = [];
   for (var i = 0; i < torrents.length; i++) {
     var data = torrents[i];
+    var dropdown = "0px";
+    var canStream = false;
+    if(torrentApp.torrents[i] != null) {dropdown = torrentApp.torrents[i].dropdown;}
+    for (var j = 0; j < data.files.length; j++) {
+			var fileSplit = data.files[j].name.split(".");
+			if(main.mediaFiles.includes(fileSplit[fileSplit.length-1].toLowerCase())) {
+				canStream = true;
+			}
+		}
     temparr.push({
       filename: data.name,
       received: Math.round(data.received/1024/1024*100)/100,
@@ -141,9 +154,9 @@ function checkTorrents() {
       speed: Math.round(data.downloadSpeed/1024/1024*100)/100,
       peers: data._peersLength,
       color: c2c('#'+data.infoHash.substring(0,6), 'hsl').split("(")[1].split(",")[0],
-      canStream: false,
+      canStream: canStream,
       paused: data.paused,
-      dropdown: "0px",
+      dropdown: dropdown,
       magnet: data.magnetURI
     });
   }

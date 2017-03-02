@@ -18,7 +18,7 @@
       <i class="fa fa-caret-down fa-fw tmenu" aria-hidden="true" v-on:click="toggleDropdown(torrent)"></i>
       <div class="dropdown" v-bind:style="{height: torrent.dropdown+' !important'}">
         <ul>
-          <li v-if="torrent.canStream">Stream</li>
+          <li v-if="torrent.canStream" v-on:click="openstream(torrent.magnet)">Stream</li>
           <li v-if="!torrent.canStream" style="color: rgb(134, 134, 134)">Stream</li>
           <li v-on:click="openFile(torrent.path)">Open</li>
           <li v-if="!torrent.paused">Pause</li>
@@ -35,7 +35,7 @@
       <i class="fa fa-caret-down fa-fw tmenu" aria-hidden="true" v-on:click="toggleDropdown(torrent)"></i>
       <div class="dropdown" v-bind:style="{height: torrent.dropdown+' !important'}">
         <ul>
-          <li v-if="torrent.canStream">Stream</li>
+          <li v-if="torrent.canStream" v-on:click="openstream(torrent.magnet)">Stream</li>
           <li v-if="!torrent.canStream" style="color: rgb(134, 134, 134)">Stream</li>
           <li v-on:click="openFile(torrent.path)">Open</li>
           <li v-if="!torrent.paused">Pause</li>
