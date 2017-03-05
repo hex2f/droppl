@@ -25,11 +25,6 @@ if(process.env.NODE_ENV == 'development') {
 function createWindow () {
   win_main = new BrowserWindow({width: 560, height: 750, icon: __dirname + '/img/dropplLogo.ico', backgroundColor: '#363742'});
 
-  // make sure we open up devtools during development
-  if(process.env.NODE_ENV == 'development') {
-    win_main.webContents.openDevTools();
-  }
-
   win_main.loadURL(url.format({
     pathname: path.join(__dirname, '/views/main.html'),
     protocol: 'file:',
@@ -55,8 +50,27 @@ app.on('ready', ()=>{
   if(isWin) {
     tray = new Tray(__dirname + '/img/dropplLogo.ico');
     const contextMenu = Menu.buildFromTemplate([
-      {label: 'Open'},
-      {label: 'Quit'},
+      {
+        label: 'Open',
+        click: function() {
+          win_main.show();
+        }
+      },
+      {
+        label: 'Toggle DevTools',
+        click: function() {
+          win_main.toggleDevTools();
+          this.checked = !this.checked;
+        }
+      },
+      {
+        label: 'Quit',
+        click: function() {
+          win_main.removeAllListeners('close');
+          win_main.close();
+          app.quit();
+        }
+      },
     ]);
     tray.setToolTip('Droppl');
     tray.setContextMenu(contextMenu);
@@ -69,13 +83,6 @@ app.on('ready', ()=>{
   createWindow();
 });
 
-app.on('window-all-closed', (event) => {
-  if(isWin){
-    event.preventDefault();
-  } else {
-    app.quit();
-  }
-});
 
 app.on('activate', () => {
   if (win_main === null) {
@@ -143,8 +150,8 @@ exports.win_viewer = win_viewer;
 
 exports.openviewer = (magnet) => {
   if(client.get(magnet) != null) client.get(magnet).destroy();
-  win_viewer = new BrowserWindow({width: 1280, height: 720});
-
+  win_viewer = new BrowserWindow({width: 1280, height: 720, icon: __dirname + '/img/dropplLogo.ico', backgroundColor: '#000'});
+  win_viewer.setMenu(null);
   win_viewer.loadURL(url.format({
     pathname: path.join(__dirname, '/views/viewer.html'),
     protocol: 'file:',
@@ -161,6 +168,9 @@ exports.openviewer = (magnet) => {
   });
   exports.win_viewer = win_viewer;
 };
+
+exports.rezisePlayer = (h, w) => win_viewer.setSize(w, h);
+exports.fullscreenPlayer = () => win_viewer.setFullScreen(!win_viewer.isFullScreen());
 
 exports.openuploadwindow = () => {
   win_upload = new BrowserWindow({width: 800, height: 600});

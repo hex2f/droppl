@@ -5,12 +5,28 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<link rel="stylesheet" href="../style/viewer.min.css">
+	<link rel="stylesheet" href="../style/range.css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
+	<link rel="stylesheet" href="../fa/css/font-awesome.min.css">
 	<script src="../scripts/viewer.js" charset="utf-8"></script>
 	<title>Droppl</title>
 </head>
 <body>
 	<div id="player">
-		<p>Loading...</p>
+		<div id="loader"></div>
+	</div>
+	<div id="controls">
+		<button id="playpause">
+			<i class="fa fa-fw fa-pause" aria-hidden="true"></i>
+		</button>
+		<input type="range" min="0" max="100" id="vidseek" value="0">
+		<div id="volumeIcon">
+			<i class="fa fa-fw fa-volume-up" aria-hidden="true"></i>
+		</div>
+		<input type="range" min="0" max="100" id="volume">
+		<button id="fullscreen">
+			<i class="fa fa-fw fa-arrows-alt" aria-hidden="true"></i>
+		</button>
 	</div>
 </body>
 </html>

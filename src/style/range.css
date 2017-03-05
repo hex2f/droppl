@@ -1,0 +1,31 @@
+input[type=range] {
+  -webkit-appearance: none;
+	height: 20px;
+	background: transparent
+}
+input[type=range]:focus {
+  outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 2px;
+  cursor: pointer;
+  animate: 0.2s;
+  background: #A9A9A9;
+  border-radius: 10px;
+}
+input[type=range]::-webkit-slider-thumb {
+  height: 12.5px;
+  width: 12.5px;
+  border-radius: 10px;
+  background: #1F69CE;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -5px;
+}
+
+input[type='range']::-webkit-slider-thumb::before {
+  position: absolute;
+  content: 'nibba';
+
+}
