@@ -18,7 +18,7 @@
     "torrent"
   ],
   "author": "RekkyRek",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "devDependencies": {
     "cross-env": "^3.1.4",
     "electron": "^1.4.15",
