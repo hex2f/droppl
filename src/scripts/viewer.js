@@ -12,6 +12,19 @@ var file;
 
 console.log(file);
 
+//Change to false in production
+if(true == true) {
+	$(document).keypress(function (e) {
+		switch(e.keyCode) {
+			case 18:
+				window.location.reload();
+				break;
+			case 9:
+				main.openViewerTools();
+		}
+	});
+}
+
 ipc.on('openFile' , function(event , magnet){
 	console.log(magnet);
 	client.add(magnet, {path: main.app.getPath('downloads') + "/droppl"}, (torrent)=>{
@@ -30,17 +43,18 @@ ipc.on('openFile' , function(event , magnet){
 						$('#playpause').get(0).innerHTML = '<i class="fa fa-fw fa-play" aria-hidden="true"></i>';
 					}
 				};
-				$('#fullscreen').get(0).onclick = () => { main.fullscreenPlayer(); };
-				document.onmousemove = (function() {
-					var onmousestop = function() {
-						/* do stuff */
-					}, thread;
 
-					return function() {
-						clearTimeout(thread);
-						thread = setTimeout(onmousestop, 500);
-					};
-				})();
+				var thread;
+				$( "body" ).mousemove(function( e ) {
+					$('#controls').get(0).style.opacity = "1";
+					clearTimeout(thread);
+					thread = setTimeout(()=>{
+						if(e.pageY < window.innerHeight - 40) {
+							$('#controls').get(0).style.opacity = "0";
+						}
+					}, 500);
+				});
+				$('#fullscreen').get(0).onclick = () => { main.fullscreenPlayer(); };
 				var vid = $('video').get(0);
 				var vs = $('#vidseek').get(0);
 				var vl = $('#volume').get(0);

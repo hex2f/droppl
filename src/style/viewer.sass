@@ -23,7 +23,7 @@ body
 		text-align: center
 video
 	width: 100vw
-	max-height: 100vh
+	max-height: calc(100vh + 3px)
   animation: fadein 0.5s
 i
   color: #fff
@@ -39,10 +39,12 @@ button
   width: 100vw
   position: absolute
   bottom: 0px
+  opacity: 0
   left: 0px
   background: rgba(0,0,0,0.55)
   display: flex
   align-items: center
+  transition: opacity 0.2s
   #vidseek
     flex: 1
   #volumeIcon

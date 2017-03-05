@@ -127,13 +127,8 @@ exports.opendomainwindow = () => {
   });
 };
 
-exports.stopInitTimer = () => {
-  console.timeEnd('init');
-};
-
-exports.closedomainwindow = () => {
-  win_dom.close();
-};
+exports.stopInitTimer = () => console.timeEnd('init');
+exports.closedomainwindow = () => win_dom.close();
 
 exports.mediaFiles = [
 	'mp4',
@@ -147,6 +142,7 @@ exports.mediaFiles = [
 ];
 
 exports.win_viewer = win_viewer;
+exports.openViewerTools = () => win_viewer.toggleDevTools();
 
 exports.openviewer = (magnet) => {
   if(client.get(magnet) != null) client.get(magnet).destroy();
