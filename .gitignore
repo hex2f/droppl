@@ -1,2 +1,11 @@
-
+# ignore node directory and dist directory to shrink repo size
+node_modules/
+dist/
 src/server/torrents\.json
+
+# ignore npm log files upon failure
+npm-debug.log*
+*.log
+
+# OS specific temp files
+.DS_STORE
