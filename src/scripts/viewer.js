@@ -73,11 +73,11 @@ ipc.on('openFile' , function(event , magnet){
 						$('#volumeIcon').get(0).innerHTML = '<i class="fa fa-fw fa-volume-off" aria-hidden="true"></i>';
 					}
 				};
-				setTimeout(()=>{
+				vid.oncanplay = ()=>{
 					vs.setAttribute("max", parseInt(vid.duration*10));
 					main.rezisePlayer(vid.videoHeight, vid.videoWidth);
 					console.log(vid.videoWidth, vid.videoHeight);
-				},250);
+				};
 			}
 		}
 	});

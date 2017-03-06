@@ -5,7 +5,6 @@ var isWin = /^win/.test(process.platform);
 const {app, BrowserWindow, dialog, Menu, Tray} = require('electron');
 const path = require('path');
 const url = require('url');
-const fs = require('fs');
 var WebTorrent = require('webtorrent');
 var client = new WebTorrent();
 
@@ -44,6 +43,8 @@ function createWindow () {
       win_main = null;
     }
   });
+
+  exports.win_main = win_main;
 }
 
 app.on('ready', ()=>{
@@ -192,6 +193,24 @@ exports.openuploadwindow = () => {
   });
 };
 
+exports.requestUpdatePermission = () => {
+  return new Promise(function(resolve, reject){
+    dialog.showMessageBox({
+      type: "question",
+      message: "There is a new version available. Would you like to update?",
+      buttons: ["Yes", "No"]
+    }, (resp) => {
+      if(resp == 0) {
+        resolve(true);
+      } else {
+        reject(false);
+      }
+    });
+  });
+};
+
 exports.closeuploadwindow = () => {
   win_upload.close();
 };
+
+require('./otau.js');
