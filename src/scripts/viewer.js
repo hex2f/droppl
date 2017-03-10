@@ -13,7 +13,7 @@ var file;
 console.log(file);
 
 //Change to false in production
-if(true == true) {
+if(process.env.NODE_ENV === 'development') {
 	$(document).keypress(function (e) {
 		switch(e.keyCode) {
 			case 18:
