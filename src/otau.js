@@ -4,7 +4,7 @@ const main = require('./index.js');
 const rimraf = require('rimraf');
 const {shell} = require('electron');
 
-var currentVersion = 'v'+JSON.parse(fs.readFileSync('./package.json'))['version'];
+var currentVersion = 'v0.0.3';
 
 var user = "RekkyRek";
 var repo = "droppl";
@@ -44,7 +44,6 @@ fetch(`https://api.github.com/repos/${user}/${repo}/releases`)
 									main.win_main.close();
 									main.app.quit();
 								});
-								console.log('Initiated download...');
 							});
 					})
 					.catch((err)=>{

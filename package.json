@@ -1,6 +1,6 @@
 {
   "name": "Droppl",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "The Torrent client that cares ❤",
   "main": "index.js",
   "scripts": {

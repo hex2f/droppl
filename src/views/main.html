@@ -12,7 +12,7 @@
 </head>
 <body>
   <div id="notification"><p>Processing Torrent</p></div>
-  <div id="topbar"></div>
+  <!--div id="topbar"></div-->
   <div id="torrents">
     <div class="torrent" v-for="torrent in doneTorrents" v-bind:style="{background: 'linear-gradient(to bottom right, hsl(' + torrent.color + ', 80%, 48%), hsl(' + torrent.color + ' , 47%, 41%))'}">
       <i class="fa fa-caret-down fa-fw tmenu" aria-hidden="true" v-on:click="toggleDropdown(torrent)"></i>

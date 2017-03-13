@@ -51,6 +51,12 @@ var torrentApp = new Vue({
           setTimeout(()=>{notification("Torrent Removed", false);});
         });
       } else {
+        if(main.webtorrent.get(torrent) != null) {
+          main.webtorrent.remove(torrent, ()=>{
+            notification("Torrent Removed", true);
+            setTimeout(()=>{notification("Torrent Removed", false);});
+          });
+        }
         torrentApp.doneTorrents.splice(torrentApp.torrents.indexOf(torrent), 1);
         localStorage.setItem("doneTorrents", JSON.stringify(torrentApp.doneTorrents));
       }
@@ -137,8 +143,10 @@ function checkTorrents() {
   for (var i = 0; i < torrents.length; i++) {
     var data = torrents[i];
     var dropdown = "0px";
+    var color = "fff";
     var canStream = false;
     if(torrentApp.torrents[i] != null) {dropdown = torrentApp.torrents[i].dropdown;}
+    if(data.infoHash != null) {color = data.infoHash.substring(0,6);}
     for (var j = 0; j < data.files.length; j++) {
 			var fileSplit = data.files[j].name.split(".");
 			if(main.mediaFiles.includes(fileSplit[fileSplit.length-1].toLowerCase())) {
@@ -153,7 +161,7 @@ function checkTorrents() {
       eta: msToTime(data.timeRemaining),
       speed: Math.round(data.downloadSpeed/1024/1024*100)/100,
       peers: data._peersLength,
-      color: c2c('#'+data.infoHash.substring(0,6), 'hsl').split("(")[1].split(",")[0],
+      color: c2c('#'+color, 'hsl').split("(")[1].split(",")[0],
       canStream: canStream,
       paused: data.paused,
       dropdown: dropdown,

@@ -7,9 +7,21 @@ const path = require('path');
 const url = require('url');
 var WebTorrent = require('webtorrent');
 var client = new WebTorrent();
+var port = 21342;
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
+var shouldQuit = app.makeSingleInstance(function() {
+  if (win_main) {
+    win_main.show();
+    win_main.focus();
+  }
+  return true;
+});
+
+if (shouldQuit) {
+  app.quit();
+  return;
+}
+
 let win_upload;
 let win_main;
 let win_dom;
@@ -131,7 +143,7 @@ exports.opendomainwindow = () => {
 exports.stopInitTimer = () => console.timeEnd('init');
 exports.closedomainwindow = () => win_dom.close();
 
-exports.mediaFiles = [
+var mediaFiles = [
 	'mp4',
 	'webm',
 	'ogg',
@@ -142,27 +154,45 @@ exports.mediaFiles = [
 	'wav'
 ];
 
+exports.mediaFiles = mediaFiles;
+
 exports.win_viewer = win_viewer;
 exports.openViewerTools = () => win_viewer.toggleDevTools();
 
 exports.openviewer = (magnet) => {
-  if(client.get(magnet) != null) client.get(magnet).destroy();
-  win_viewer = new BrowserWindow({width: 1280, height: 720, icon: __dirname + '/img/dropplLogo.ico', backgroundColor: '#000'});
-  win_viewer.setMenu(null);
-  win_viewer.loadURL(url.format({
-    pathname: path.join(__dirname, '/views/viewer.html'),
-    protocol: 'file:',
-    slashes: true
-  }));
+  if(win_viewer == null) {
+    var torrent = client.get(magnet);
+    var fileIndex = 0;
+    torrent.files.forEach((file)=>{
+      var fileSplit = file.name.split(".");
+			if(mediaFiles.includes(fileSplit[fileSplit.length-1].toLowerCase())) {
+        fileIndex = torrent.files.indexOf(file);
+			}
+    });
+    exports.currentViewerFile = fileIndex;
 
-  win_viewer.webContents.on('dom-ready', () => {
-    win_viewer.webContents.send('openFile' , magnet);
-  });
+    var server = torrent.createServer();
+    server.listen(port);
+    win_viewer = new BrowserWindow({width: 1280, height: 720, icon: __dirname + '/img/dropplLogo.ico', backgroundColor: '#000'});
+    win_viewer.setMenu(null);
+    win_viewer.loadURL(url.format({
+      pathname: path.join(__dirname, '/views/viewer.html'),
+      protocol: 'file:',
+      slashes: true
+    }));
+
+    win_viewer.webContents.on('dom-ready', () => {
+
+    });
 
 
-  win_viewer.on('close', () => {
-    win_viewer = null;
-  });
+    win_viewer.on('close', () => {
+      server.close();
+      win_viewer = null;
+    });
+  } else {
+    win_viewer.focus();
+  }
   exports.win_viewer = win_viewer;
 };
 
@@ -198,7 +228,7 @@ exports.requestUpdatePermission = () => {
     dialog.showMessageBox({
       type: "question",
       message: "There is a new version available. Would you like to update?",
-      buttons: ["Yes", "No"]
+      buttons: ["Yes, Download in background", "No, Remind me later"]
     }, (resp) => {
       if(resp == 0) {
         resolve(true);
