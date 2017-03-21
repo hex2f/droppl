@@ -4,7 +4,7 @@ const main = require('./index.js');
 const rimraf = require('rimraf');
 const {shell} = require('electron');
 
-var currentVersion = 'v0.0.3';
+var currentVersion = 'v0.0.4';
 
 var user = "RekkyRek";
 var repo = "droppl";
