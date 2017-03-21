@@ -1,5 +1,3 @@
-/*Not needed yet.
-var Vue = require('../vue.dev.js');*/
 var $ = require('jquery');
 
 var {remote} = require('electron');

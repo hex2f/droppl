@@ -9,3 +9,5 @@ npm-debug.log*
 
 # OS specific temp files
 .DS_STORE
+
+localStorage/

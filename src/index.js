@@ -5,9 +5,27 @@ var isWin = /^win/.test(process.platform);
 const {app, BrowserWindow, dialog, Menu, Tray} = require('electron');
 const path = require('path');
 const url = require('url');
+var LocalStorage = require('node-localstorage').LocalStorage;
+var localStorage = new LocalStorage('./localStorage');
+
 var WebTorrent = require('webtorrent');
 var client = new WebTorrent();
 var port = 21342;
+
+var dlpath = app.getPath('downloads') + "\\droppl";
+
+if(localStorage.getItem('dlpath') != null)
+  dlpath = localStorage.getItem('dlpath');
+
+exports.getDownloadPath = dlpath;
+exports.setDownloadPath = (p) => {
+  dlpath = p;
+  console.log('New Download Path: '+p);
+  localStorage.setItem('dlpath', p);
+  exports.getDownloadPath = dlpath;
+};
+
+console.log('Download Path: '+dlpath);
 
 var shouldQuit = app.makeSingleInstance(function() {
   if (win_main) {
@@ -23,6 +41,7 @@ if (shouldQuit) {
 }
 
 let win_upload;
+let win_settings;
 let win_main;
 let win_dom;
 let win_viewer;
@@ -106,9 +125,9 @@ app.on('activate', () => {
 exports.app = app;
 
 exports.addTorrent = (magnet) => {
-  if(client.get(magnet) == null) {
+  if(magnet != "" && client.get(magnet) == null) {
     console.log('New torrent');
-    client.add(magnet, {path: app.getPath('downloads') + "/droppl"}, (torrent)=>{
+    client.add(magnet, {path: dlpath}, (torrent)=>{
       win_main.webContents.send('torrentAdded' , torrent);
       torrent.on('error', function () {
         win_main.webContents.send('torrentError' , torrent);
@@ -198,6 +217,22 @@ exports.openviewer = (magnet) => {
 
 exports.rezisePlayer = (h, w) => win_viewer.setSize(w, h);
 exports.fullscreenPlayer = () => win_viewer.setFullScreen(!win_viewer.isFullScreen());
+
+exports.openSettings = () => {
+  win_settings = new BrowserWindow({width: 360, height: 360, icon: __dirname + '/img/dropplLogo.ico', backgroundColor: '#363742', resizable: false});
+  win_settings.loadURL(url.format({
+    pathname: path.join(__dirname, '/views/settings.html'),
+    protocol: 'file:',
+    slashes: true
+  }));
+
+  win_settings.setMenu(null);
+
+  win_settings.on('close', () => {
+    win_settings = null;
+  });
+  exports.settingsWindow = win_settings;
+};
 
 exports.openuploadwindow = () => {
   win_upload = new BrowserWindow({width: 800, height: 600});

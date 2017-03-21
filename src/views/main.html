@@ -12,17 +12,19 @@
 </head>
 <body>
   <div id="notification"><p>Processing Torrent</p></div>
-  <!--div id="topbar"></div-->
+
+  <div id="topbar">
+    <input type="text" name="" placeholder="magnet://link-here" id="magnet_input">
+    <i id="magnet_i" class="fa fa-plus fa-fw" aria-hidden="true" onclick="main.addTorrent(magnet_input.value); magnet_input.value = ''"></i>
+    <i id="settings_i" class="fa fa-cog fa-fw" aria-hidden="true" onclick="main.openSettings()"></i>
+  </div>
+
   <div id="torrents">
     <div class="torrent" v-for="torrent in doneTorrents" v-bind:style="{background: 'linear-gradient(to bottom right, hsl(' + torrent.color + ', 80%, 48%), hsl(' + torrent.color + ' , 47%, 41%))'}">
       <i class="fa fa-caret-down fa-fw tmenu" aria-hidden="true" v-on:click="toggleDropdown(torrent)"></i>
       <div class="dropdown" v-bind:style="{height: torrent.dropdown+' !important'}">
         <ul>
-          <li v-if="torrent.canStream" v-on:click="openstream(torrent.magnet)">Stream</li>
-          <li v-if="!torrent.canStream" style="color: rgb(134, 134, 134)">Stream</li>
           <li v-on:click="openFile(torrent.path)">Open</li>
-          <li v-if="!torrent.paused">Pause</li>
-          <li v-if="torrent.paused">Resume</li>
           <li v-on:click="removeTorrent(1, torrent.magnet)">Remove</li>
         </ul>
       </div>
@@ -31,6 +33,7 @@
       <p v-on:click="openFile(torrent.path)" style="text-decoration: underline; cursor: pointer">{{torrent.path}}</p>
       <div v-bind:style="{width: torrent.progress}"><p>100%</p></div>
     </div>
+
     <div class="torrent" v-for="torrent in torrents" v-bind:style="{background: 'linear-gradient(to bottom right, hsl(' + torrent.color + ', 80%, 48%), hsl(' + torrent.color + ' , 47%, 41%))'}">
       <i class="fa fa-caret-down fa-fw tmenu" aria-hidden="true" v-on:click="toggleDropdown(torrent)"></i>
       <div class="dropdown" v-bind:style="{height: torrent.dropdown+' !important'}">
@@ -38,8 +41,8 @@
           <li v-if="torrent.canStream" v-on:click="openstream(torrent.magnet)">Stream</li>
           <li v-if="!torrent.canStream" style="color: rgb(134, 134, 134)">Stream</li>
           <li v-on:click="openFile(torrent.path)">Open</li>
-          <li v-if="!torrent.paused">Pause</li>
-          <li v-if="torrent.paused">Resume</li>
+          <li v-if="!torrent.paused" v-on:click="pauseTorrent(torrent.magnet)">Pause</li>
+          <li v-if="torrent.paused" v-on:click="resumeTorrent(torrent.magnet)">Resume</li>
           <li v-on:click="removeTorrent(0, torrent.magnet)">Cancel</li>
         </ul>
       </div>

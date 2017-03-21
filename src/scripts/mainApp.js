@@ -20,6 +20,12 @@ remote.getCurrentWindow().on('close', function(event) {
   remote.getCurrentWindow().hide();
 });
 
+function log(string) {
+  if(process.env.NODE_ENV == 'development') {
+    console.log(string);
+  }
+}
+
 function notification(message, state) {
   var notif = $('#notification').get(0);
   if(state == true) {
@@ -44,6 +50,20 @@ var torrentApp = new Vue({
     openFile: function (path) {
       shell.openItem(path);
     },
+    pauseTorrent: function (magnet) {
+      var t = main.webtorrent.get(magnet);
+      t.pause();
+      log(t);
+      for(var peer in t._peers) {
+        log(peer);
+        t.removePeer(peer);
+      }
+    },
+    resumeTorrent: function (magnet) {
+      main.webtorrent.get(magnet).destroy(()=>{
+          main.addTorrent(magnet);
+      });
+    },
     removeTorrent: function (type, torrent) {
       if(type == 0) {
         main.webtorrent.remove(torrent, ()=>{
@@ -62,7 +82,7 @@ var torrentApp = new Vue({
       }
     },
     openstream: function (magnet) {
-      console.log(magnet);
+      log(magnet);
       main.openviewer(magnet);
     },
     toggleDropdown: function (torrent) {
@@ -70,8 +90,8 @@ var torrentApp = new Vue({
       var nti = torrentApp.torrents.indexOf(torrent);
       if(dti != -1) {
         if(torrentApp.doneTorrents[dti].dropdown == "0px")
-          Vue.set(torrentApp.doneTorrents[dti], "dropdown", "116px");
-        else if(torrentApp.doneTorrents[dti].dropdown == "116px")
+          Vue.set(torrentApp.doneTorrents[dti], "dropdown", "60px");
+        else if(torrentApp.doneTorrents[dti].dropdown == "60px")
           Vue.set(torrentApp.doneTorrents[dti], "dropdown", "0px");
       } else if(nti != -1) {
         if(torrentApp.torrents[nti].dropdown == "0px")
@@ -104,14 +124,24 @@ var soundPlayer = $('#soundPlayer').get(0);
 
 ipc.on('playaudio' , function(event , data){ soundPlayer.src = data.source; soundPlayer.volume = data.volume; soundPlayer.play(); });
 ipc.on('torrentAdded' , function(event , data){
-  console.log('torrentAdded', data);
+  log('torrentAdded', data);
   notification("Processing Torrent", false);
   soundPlayer.src = "../audio/notification.wav"; soundPlayer.volume = 1; soundPlayer.play();
   isDownloading = true;
   checkTorrents();
+  setTimeout(()=>{
+    for (var i = 0; i < torrentApp.torrents.length; i++) {
+      if(torrentApp.torrents[i].filename == undefined) {
+        window.location.reload();
+      }
+      if(isNaN(torrentApp.torrents[i].filesize)) {
+        window.location.reload();
+      }
+    }
+  },3000);
 });
 ipc.on('torrentError' , function(event , data){
-  console.log('torrentError', data);
+  log('torrentError', data);
   notification("Error Processing Torrent", false);
   soundPlayer.src = "../audio/notification.wav"; soundPlayer.volume = 1; soundPlayer.play();
   setTimeout(()=>{notification("Processing Torrent", true);},500);
@@ -119,7 +149,7 @@ ipc.on('torrentError' , function(event , data){
 
 ipc.on('torrentDone' , function(event , data){
   checkTorrents();
-  console.log('torrentDone', data);
+  log('torrentDone', data);
   notification("Torrent Downloaded", true);
   soundPlayer.src = "../audio/success.wav"; soundPlayer.volume = 1; soundPlayer.play();
   torrentApp.doneTorrents.push({
@@ -187,7 +217,7 @@ setInterval(()=>{
   }
 },1000);
 
-$("body").on("paste", function(event) {
+$("#torrents").on("paste", function(event) {
     event.preventDefault();
     event.stopPropagation();
     if(clipboard.readText().length > 2) {

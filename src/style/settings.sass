@@ -1,0 +1,55 @@
+@keyframes fadein
+  from
+    opacity: 0
+  to
+    opacity: 1
+
+body
+  background: #363742
+  display: flex
+  justify-content: center
+  align-items: center
+  height: 100vh
+  margin: 0
+  font-family: 'Roboto', sans-serif
+  flex-direction: row
+  color: white !important
+  overflow: hidden
+  animation: fadein 0.5s
+body
+	flex-direction: column
+h1
+	font-weight: 300 !important
+	position: absolute
+	top: 38px
+	margin: 0px
+h2
+	font-weight: 100 !important
+	margin-top: -15px
+input
+	width: 80vw
+	background: #1f69ce
+	border: none
+	color: white
+	border-radius: 100px
+	padding: 10px
+	transition: all 0.2s
+	&:focus
+		outline: none
+	&::selection
+	  background: #525252
+
+button
+	background: #1f69ce
+	border: none
+	color: white
+	border-radius: 100px
+	padding: 10px
+	width: 150px
+	position: absolute
+	bottom: 38px
+	transition: all 0.2s
+	&:focus
+		outline: none
+	&:hover
+		background: #1f5fb7

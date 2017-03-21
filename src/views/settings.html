@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,100" rel="stylesheet">
+	<link rel="stylesheet" href="../style/settings.min.css">
+	<title>Droppl</title>
+</head>
+<body>
+	<h1>Settings</h1>
+	<h2>Download Path</h2>
+	<input type="text" name="dl_path" value="" id="dl_path">
+	<button id="save" onclick="main.setDownloadPath(dl_path.value); main.settingsWindow.close()">Apply</button>
+
+	<script type="text/javascript">
+		var {remote, clipboard} = require('electron');
+		var main = remote.require('./src/index.js');
+		dl_path.value = main.getDownloadPath;
+	</script>
+</body>
+</html>
