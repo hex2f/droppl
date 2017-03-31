@@ -48,7 +48,7 @@ var torrentApp = new Vue({
   },
   methods: {
     openFile: function (path) {
-      shell.openItem(path);
+      shell.openItem(path.replace("\\", "/"));
     },
     pauseTorrent: function (magnet) {
       var t = main.webtorrent.get(magnet);

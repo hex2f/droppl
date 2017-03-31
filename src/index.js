@@ -1,10 +1,15 @@
 console.time('init');
 
+console.log(process.platform);
+
 var isWin = /^win/.test(process.platform);
+var isLin = /^linux/.test(process.platform);
 
 const {app, BrowserWindow, dialog, Menu, Tray} = require('electron');
 const path = require('path');
 const url = require('url');
+const fs = require('fs');
+
 var LocalStorage = require('node-localstorage').LocalStorage;
 var localStorage = new LocalStorage('./localStorage');
 
@@ -12,7 +17,7 @@ var WebTorrent = require('webtorrent');
 var client = new WebTorrent();
 var port = 21342;
 
-var dlpath = app.getPath('downloads') + "\\droppl";
+var dlpath = app.getPath('downloads') + "/droppl";
 
 if(localStorage.getItem('dlpath') != null)
   dlpath = localStorage.getItem('dlpath');
@@ -52,6 +57,11 @@ if(process.env.NODE_ENV == 'development') {
   require('electron-reload')(__dirname);
 }
 
+if(fs.exists(dlpath) == false) {
+  console.log(dlpath + 'does not exist. Creating.');
+  fs.mkdirSync(dlpath);
+}
+
 function createWindow () {
   win_main = new BrowserWindow({width: 560, height: 750, icon: __dirname + '/img/dropplLogo.ico', backgroundColor: '#363742'});
 
@@ -61,14 +71,14 @@ function createWindow () {
     slashes: true
   }));
 
-  if(isWin) {
+  if(isWin || isLin) {
     win_main.on('beforeunload', (event) => {
       win_main.hide();
       event.returnValue = false;
     });
   }
   win_main.on('close', (event) => {
-    if(isWin) {
+    if(isWin || isLin) {
       event.preventDefault();
     } else {
       win_main = null;
@@ -79,8 +89,12 @@ function createWindow () {
 }
 
 app.on('ready', ()=>{
-  if(isWin) {
-    tray = new Tray(__dirname + '/img/dropplLogo.ico');
+  var icon = __dirname + '/img/dropplLogo.ico';
+  if(isLin) {
+    icon = __dirname + '/img/dropplLogo.png'
+  }
+  if(isWin || isLin) {
+    tray = new Tray(icon);
     const contextMenu = Menu.buildFromTemplate([
       {
         label: 'Open',
@@ -126,6 +140,11 @@ exports.app = app;
 
 exports.addTorrent = (magnet) => {
   if(magnet != "" && client.get(magnet) == null) {
+    if(fs.exists(dlpath) == false) {
+      console.log(dlpath + 'does not exist. Creating.');
+      fs.mkdirSync(dlpath);
+    }
+
     console.log('New torrent');
     client.add(magnet, {path: dlpath}, (torrent)=>{
       win_main.webContents.send('torrentAdded' , torrent);
